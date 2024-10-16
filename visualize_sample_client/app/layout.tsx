@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
+import MenuBar from "@/lib/Menubar/Menubar";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -25,9 +26,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ja">
-      <head />
+      <head>
+        <title>Ros GUI Controller</title>
+      </head>
       <body>
         <header>
+          <MenuBar />
         </header>
         {children}
         <footer>

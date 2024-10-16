@@ -3,8 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 
 // Bootstrap
-import { Container, Row, Col } from 'react-bootstrap';
-import { Button } from 'react-bootstrap';
+import { Button, Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 // ROS Operator
