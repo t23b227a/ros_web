@@ -3,31 +3,76 @@
 import React, { useRef, useState, useEffect } from 'react';
 
 // Bootstrap
-import { Button, Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-// ROS Operator
-import  RosOperator from '@/lib/ros_operations';
+import { ChildComponentProps } from '@/app/page';
+import ROSLIB from 'roslib';
+
+// Test string topic name
+// const TOPIC_NAME_TEST_STR = 'test_message';
+const TOPIC_NAME_TEST_STR = 'test_talker';
+
+// String 型
+export interface String {
+    data: string;
+}
+
+// Log 型
+interface Log {
+    level: number;   // ログレベル
+    name: string;    // ノード名
+    msg: string;     // メッセージ内容
+}
 
 //////////////////////////////////////////////////
 /// Viewer                                     ///
 //////////////////////////////////////////////////
 
-const Viewer = () => {
-    // ROS operator ref
-    const rosOpRef = useRef<any>(null!);
+const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
+    // RosTopick
+    const [testStrListener, setTestStrListener] = useState<ROSLIB.Topic | null>(null);
+    const [logListener, setLogListener] = useState<ROSLIB.Topic | null>(null);
+    // ROS オブジェクト更新時に RosTopick を更新
+    useEffect(() => {
+        // topic listener
+        setTestStrListener(
+            new ROSLIB.Topic({
+                ros: ros,
+                name: TOPIC_NAME_TEST_STR,
+                messageType: 'std_msgs/String',
+            })
+        );
+        // LogListener
+        setLogListener(
+            new ROSLIB.Topic({
+                ros: ros,
+                name: '/rosout',
+                messageType: 'rcl_interfaces/msg/Log',
+            })
+        );
+    }, [ros]);
+    // testStrListener更新時にsubscribe設定
+    useEffect(() => {
+        // 初回表示時はオブジェクトが空なのでスキップ
+        if (testStrListener === null) { return; }
+        // Test string topic msg subscription event
+        testStrListener.subscribe((msg: ROSLIB.Message) => {
+            // 上位モジュールへ通知
+            updateLogArray((msg as String).data);
+        });
+    }, [testStrListener]);
+    // LogListener更新時にsubscribe設定
+    useEffect(() => {
+        if (logListener === null) { return; }
+        logListener.subscribe((msg: ROSLIB.Message) => {
+            const logMessage = msg as Log;
+            updateLogArray(`[${logMessage.level}] ${logMessage.name}: ${logMessage.msg}`);
+        });
+    }, [logListener])
 
-    // ROS 接続状態 (ROS Operatorにて更新)
-    const [rosConnected, setRosConnected] = useState<boolean>(false);
-
-    // Test string
-    const [testLogArray, setLogArray] = useState<string[]>([]);
-
-    // ROS接続開始
-    const startConnect = () => {
-        rosOpRef.current.connect();
-    };
-
+    // LogArray
+    const [LogArray, setLogArray] = useState<string[]>([]);
     // 新しいログが来たときに配列に追加する
     const updateLogArray = (newLog: string) => {
         setLogArray(prevEntries => [...prevEntries, newLog]);
@@ -38,7 +83,7 @@ const Viewer = () => {
     const logEndRef = useRef<any>(null);
     const [autoScroll, setAutoScroll] = useState(true);
 
-  // スクロール位置を確認して、一番下にいるかどうかをチェック
+    // スクロール位置を確認して、一番下にいるかどうかをチェック
     const handleScroll = () => {
         const {scrollTop, scrollHeight, clientHeight} = logContainerRef.current;
         // 現在のスクロール位置と高さを比較して、ユーザーが一番下にいるか判定
@@ -54,40 +99,12 @@ const Viewer = () => {
         if (autoScroll) {
             logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [testLogArray, autoScroll]);
+    }, [LogArray, autoScroll]);
 
     // 表示
     return (
         <>
-            {/* ROS Operator */}
-            <RosOperator
-                setRosConnected={setRosConnected}
-                updateLog={updateLogArray}
-                ref={rosOpRef}
-            />
-
             <Container>
-                {/* Title */}
-                <Row>
-                    <Col>
-                        <h1>ROS2 data visualization sample</h1>
-                    </Col>
-                </Row>
-
-                {/* Header ... ROS接続ボタンおよび接続状態確認 */}
-                <Row>
-                    <Col>
-                        <Button
-                            variant={!rosConnected ? "primary" : "secondary"}
-                            disabled={rosConnected}
-                            onClick={!rosConnected ? startConnect : undefined}
-                        >
-                            ROS接続開始
-                        </Button>
-                        <h2>ROS接続状態 ... {rosConnected ? 'ON' : 'OFF'}</h2>
-                    </Col>
-                </Row>
-
                 {/* Logger ... ログ表示等 */}
                 <Row>
                     <Col>
@@ -96,7 +113,7 @@ const Viewer = () => {
                             onScroll={handleScroll}
                             style={{maxHeight: '300px', overflowY: 'auto', background: '#f8f9fa', padding: '10px', border: '1px solid #ddd',}}
                         >
-                            {testLogArray.map((entry, index) => (
+                            {LogArray.map((entry, index) => (
                                 <div key={index}>{entry}</div>
                             ))}
                             <div ref={logEndRef} />
