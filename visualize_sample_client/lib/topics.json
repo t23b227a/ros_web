@@ -1,0 +1,12 @@
+[
+    {
+        "name": "/rosout",
+        "messageType": "rcl_interfaces/msg/Log",
+        "show": "[${level}] ${name}: ${msg}"
+    },
+    {
+        "name": "test_talker",
+        "messageType": "std_msgs/String",
+        "show": "${data}"
+    }
+]

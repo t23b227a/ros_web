@@ -1,5 +1,5 @@
 'use client'
-import MenuBar from '@/lib/Menubar';
+import MenuBar from '@/lib/menubar';
 import Viewer from '@/lib/viewer';
 import Talker from '@/lib/sender';
 import JoystickController from '@/lib/controller';

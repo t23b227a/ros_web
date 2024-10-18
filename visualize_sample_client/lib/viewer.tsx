@@ -1,33 +1,28 @@
 "use client";
 // React
-import React, { useRef, useState, useEffect, useCallback } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
+
+// TopicList
+import topics from './topics.json';
 
 // Bootstrap
-import { Container, Row, Col, Form, Button, Stack } from 'react-bootstrap';
+import { Container, Row, Col } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { ChildComponentProps } from '@/app/page';
 import ROSLIB from 'roslib';
 
-// Test string topic name
-// const TOPIC_NAME_TEST_STR = 'test_message';
-const TOPIC_NAME_TEST_STR = 'test_talker';
-
-// String 型
-export interface String {
-    data: string;
+// 随時追加が必要かも
+interface Message {
+    data?: string;
+    level?: number;
+    name?: string;
+    msg?: string;
 }
 
-// Log 型
-interface Log {
-    level: number;   // ログレベル
-    name: string;    // ノード名
-    msg: string;     // メッセージ内容
-}
-
-type NewTopic = {
-    name: string
-    messageType: string
+interface TopicObject {
+    topic: ROSLIB.Topic;
+    show: string;
 }
 
 //////////////////////////////////////////////////
@@ -36,71 +31,36 @@ type NewTopic = {
 
 const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
     // RosTopick
-    const [testStrListener, setTestStrListener] = useState<ROSLIB.Topic | null>(null);
-    const [logListener, setLogListener] = useState<ROSLIB.Topic | null>(null);
-    const [newTopic, setNewTopic] = useState<NewTopic>({ name: '', messageType: '' })
-    // ROS オブジェクト更新時に RosTopick を更新
-    useEffect(() => {
-        // topic listener
-        setTestStrListener(
-            new ROSLIB.Topic({
-                ros: ros,
-                name: TOPIC_NAME_TEST_STR,
-                messageType: 'std_msgs/String',
-            })
-        );
-        // LogListener
-        setLogListener(
-            new ROSLIB.Topic({
-                ros: ros,
-                name: '/rosout',
-                messageType: 'rcl_interfaces/msg/Log',
-            })
-        );
-    }, [ros]);
-    const subscribeToTopic = useCallback((topicName: string, messageType: string) => {
-        if (!ros) { return; }
-        const listener = new ROSLIB.Topic({
-            ros: ros,
-            name: topicName,
-            messageType: messageType
-        })
-        listener.subscribe((message: any) => {
-            updateLogArray((message as String).data);
-        })
-    }, [ros])
-    useEffect(() => {
-        if (ros) {
-            subscribeToTopic('/chatter', 'std_msgs/String')
-        }
-    }, [ros, subscribeToTopic])
-    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        console.log(newTopic);
-        if (newTopic.name && newTopic.messageType) {
-            subscribeToTopic(newTopic.name, newTopic.messageType)
-            setNewTopic({ name: '', messageType: '' })
-        } else {
-            console.log('Failed to add topic.');
-        }
+    const [topicList, setTopicList] = useState<TopicObject[]>([]);
+
+    const formatMessage = (template: string, messageData: any): string => {
+        return template.replace(/\$\{(\w+)\}/g, (match, key) => {
+            return messageData[key] !== undefined ? messageData[key] : match;
+        });
     }
-    // testStrListener更新時にsubscribe設定
+
+    // JSONファイルからTopicリストを作成
     useEffect(() => {
-        // 初回表示時はオブジェクトが空なのでスキップ
-        if (testStrListener === null) { return; }
-        // Test string topic msg subscription event
-        testStrListener.subscribe((msg: ROSLIB.Message) => {
-            updateLogArray((msg as String).data);
-        });
-    }, [testStrListener]);
-    // LogListener更新時にsubscribe設定
+        let topicArray: TopicObject[]= [];
+        for (let topic_ of topics) {
+            const newTopic = new ROSLIB.Topic({
+                ros: ros,
+                name: topic_.name,
+                messageType: topic_.messageType,
+            });
+            topicArray.push({topic: newTopic, show: topic_.show});
+        }
+        setTopicList(topicArray);
+    }, [ros])
+
     useEffect(() => {
-        if (logListener === null) { return; }
-        logListener.subscribe((msg: ROSLIB.Message) => {
-            const logMessage = msg as Log;
-            updateLogArray(`[${logMessage.level}] ${logMessage.name}: ${logMessage.msg}`);
-        });
-    }, [logListener])
+        for (let topic_ of topicList) {
+            topic_.topic.subscribe((msg: ROSLIB.Message) => {
+                const message = msg as Message;
+                updateLogArray(formatMessage(topic_.show, message));
+            })
+        }
+    }, [topicList])
 
     // LogArray
     const [LogArray, setLogArray] = useState<string[]>([]);
@@ -113,7 +73,6 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
     const logContainerRef = useRef<any>(null);
     const logEndRef = useRef<any>(null);
     const [autoScroll, setAutoScroll] = useState(true);
-
     // スクロール位置を確認して、一番下にいるかどうかをチェック
     const handleScroll = () => {
         const {scrollTop, scrollHeight, clientHeight} = logContainerRef.current;
@@ -124,7 +83,6 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
             setAutoScroll(false); // 一番下にいない場合は自動スクロールを停止
         }
     };
-
     // testLogArrayが更新されるたびに自動スクロールを実行（必要な場合のみ）
     useEffect(() => {
         if (autoScroll) {
@@ -136,39 +94,6 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
     return (
         <>
             <Container>
-                <Form onSubmit={handleSubmit}>
-                    <Row>
-                        <Col>
-                            <Form.Group controlId="formTopicName">
-                                <Form.Label>Topic Name</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter Topic Name"
-                                    value={newTopic.name}
-                                    onChange={(e) => setNewTopic(prev => ({ ...prev, name: e.target.value }))}
-                                />
-                            </Form.Group>
-                        </Col>
-                        <Col>
-                            <Form.Group controlId="formMessageType">
-                                <Form.Label>Message Type</Form.Label>
-                                <Form.Control
-                                    type="text"
-                                    placeholder="Enter Message Type"
-                                    value={newTopic.messageType}
-                                    onChange={(e) => setNewTopic(prev => ({ ...prev, messageType: e.target.value }))}
-                                />
-                            </Form.Group>
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <Button variant="primary" type="submit">
-                                Add Topic
-                            </Button>
-                        </Col>
-                    </Row>
-                </Form>
                 <Row>
                     <Col>
                         <h2>ログ表示</h2>
