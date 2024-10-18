@@ -6,7 +6,6 @@ import JoystickController from '@/lib/controller';
 import { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
 import { Button, Stack } from 'react-bootstrap';
-import { triggerAsyncId } from 'async_hooks';
 
 // ROS接続URL
 const ROS_CONNECTION_URL = 'ws://127.0.0.1:9090';
