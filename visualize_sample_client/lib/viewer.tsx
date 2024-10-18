@@ -1,9 +1,9 @@
 "use client";
 // React
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 
 // Bootstrap
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Stack } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { ChildComponentProps } from '@/app/page';
@@ -25,6 +25,11 @@ interface Log {
     msg: string;     // メッセージ内容
 }
 
+type NewTopic = {
+    name: string
+    messageType: string
+}
+
 //////////////////////////////////////////////////
 /// Viewer                                     ///
 //////////////////////////////////////////////////
@@ -33,6 +38,7 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
     // RosTopick
     const [testStrListener, setTestStrListener] = useState<ROSLIB.Topic | null>(null);
     const [logListener, setLogListener] = useState<ROSLIB.Topic | null>(null);
+    const [newTopic, setNewTopic] = useState<NewTopic>({ name: '', messageType: '' })
     // ROS オブジェクト更新時に RosTopick を更新
     useEffect(() => {
         // topic listener
@@ -52,13 +58,38 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
             })
         );
     }, [ros]);
+    const subscribeToTopic = useCallback((topicName: string, messageType: string) => {
+        if (!ros) { return; }
+        const listener = new ROSLIB.Topic({
+            ros: ros,
+            name: topicName,
+            messageType: messageType
+        })
+        listener.subscribe((message: any) => {
+            updateLogArray((message as String).data);
+        })
+    }, [ros])
+    useEffect(() => {
+        if (ros) {
+            subscribeToTopic('/chatter', 'std_msgs/String')
+        }
+    }, [ros, subscribeToTopic])
+    const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        console.log(newTopic);
+        if (newTopic.name && newTopic.messageType) {
+            subscribeToTopic(newTopic.name, newTopic.messageType)
+            setNewTopic({ name: '', messageType: '' })
+        } else {
+            console.log('Failed to add topic.');
+        }
+    }
     // testStrListener更新時にsubscribe設定
     useEffect(() => {
         // 初回表示時はオブジェクトが空なのでスキップ
         if (testStrListener === null) { return; }
         // Test string topic msg subscription event
         testStrListener.subscribe((msg: ROSLIB.Message) => {
-            // 上位モジュールへ通知
             updateLogArray((msg as String).data);
         });
     }, [testStrListener]);
@@ -105,7 +136,39 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
     return (
         <>
             <Container>
-                {/* Logger ... ログ表示等 */}
+                <Form onSubmit={handleSubmit}>
+                    <Row>
+                        <Col>
+                            <Form.Group controlId="formTopicName">
+                                <Form.Label>Topic Name</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter Topic Name"
+                                    value={newTopic.name}
+                                    onChange={(e) => setNewTopic(prev => ({ ...prev, name: e.target.value }))}
+                                />
+                            </Form.Group>
+                        </Col>
+                        <Col>
+                            <Form.Group controlId="formMessageType">
+                                <Form.Label>Message Type</Form.Label>
+                                <Form.Control
+                                    type="text"
+                                    placeholder="Enter Message Type"
+                                    value={newTopic.messageType}
+                                    onChange={(e) => setNewTopic(prev => ({ ...prev, messageType: e.target.value }))}
+                                />
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                    <Row>
+                        <Col>
+                            <Button variant="primary" type="submit">
+                                Add Topic
+                            </Button>
+                        </Col>
+                    </Row>
+                </Form>
                 <Row>
                     <Col>
                         <h2>ログ表示</h2>

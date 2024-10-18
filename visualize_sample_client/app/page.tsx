@@ -22,13 +22,13 @@ export default function Home() {
   const [rosConnected, setRosConnected] = useState(false);
   const connectToROS = () => {
     console.log('ROS Operator: Try connection...');
+    setRosConnected(false);
     setRosObject(new ROSLIB.Ros({url:ROS_CONNECTION_URL}));
   };
   useEffect(() => {
     // 初回表示時は ROS オブジェクトが null なのでスキップ
     if (ros === null) { return; }
     // 接続完了検知 or エラー検知
-    // NOTE: 検知時に上位モジュールにフラグ通知
     ros.on('connection', () => {
         console.log('ROS Operator: ROS connected.');
         setRosConnected?.(true);
@@ -46,15 +46,15 @@ export default function Home() {
   return (
     <div>
       <Stack direction="horizontal" gap={3}>
+        <h2>ROS接続状態 ... {rosConnected ? 'ON' : 'OFF'}</h2>
+        <Button
+            variant={!rosConnected ? "primary" : "secondary"}
+            disabled={rosConnected}
+            onClick={!rosConnected ? connectToROS : undefined}
+        >
+            ROS接続開始
+        </Button>
         <MenuBar />
-          <Button
-              variant={!rosConnected ? "primary" : "secondary"}
-              disabled={rosConnected}
-              onClick={!rosConnected ? connectToROS : undefined}
-          >
-              ROS接続開始
-          </Button>
-          <h3>ROS接続状態 ... {rosConnected ? 'ON' : 'OFF'}</h3>
       </Stack>
       {ros && isViewer && (
         <Viewer ros={ros} />

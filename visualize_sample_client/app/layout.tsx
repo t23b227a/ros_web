@@ -26,9 +26,13 @@ export default function RootLayout({
     <html lang="ja">
       <head>
         <title>Ros GUI Controller</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+        <meta name="description" content="GUI Controller for ROS"></meta>
       </head>
       <body>
-        {children}
+        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+          {children}
+        </div>
       </body>
     </html>
   );
