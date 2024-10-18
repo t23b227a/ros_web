@@ -6,6 +6,7 @@ import JoystickController from '@/lib/controller';
 import { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
 import { Button, Stack } from 'react-bootstrap';
+import { triggerAsyncId } from 'async_hooks';
 
 // ROS接続URL
 const ROS_CONNECTION_URL = 'ws://127.0.0.1:9090';
@@ -15,11 +16,27 @@ export interface ChildComponentProps {
 }
 
 export default function Home() {
+  const [selectedMenuItem, setSelectedMenuItem] = useState<string>('Home');
   const [isViewer, setViewer] = useState(true);
   const [isSender, setSender] = useState(false);
   const [isController, setController] = useState(false);
   const [ros, setRosObject] = useState<ROSLIB.Ros | null>(null);
   const [rosConnected, setRosConnected] = useState(false);
+  const handleMenuItemSelect = (item: string) => {
+    setSelectedMenuItem(item);
+  };
+  useEffect(() => {
+    setViewer(false);
+    setSender(false);
+    setController(false);
+    if(selectedMenuItem === 'Viewer'){
+      setViewer(true);
+    } else if (selectedMenuItem === 'Talker') {
+      setSender(true);
+    } else if (selectedMenuItem === 'Controller') {
+      setController(true);
+    }
+  }, [selectedMenuItem])
   const connectToROS = () => {
     console.log('ROS Operator: Try connection...');
     setRosConnected(false);
@@ -54,7 +71,7 @@ export default function Home() {
         >
             ROS接続開始
         </Button>
-        <MenuBar />
+        <MenuBar onSelectMenuItem={handleMenuItemSelect} />
       </Stack>
       {ros && isViewer && (
         <Viewer ros={ros} />
