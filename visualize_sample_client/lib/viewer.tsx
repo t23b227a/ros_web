@@ -134,7 +134,7 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
                         </div>
                     </Col>
                     <Col xs={12} md={3} lg={2}>
-                        <h4 className="mb-3">トピック選択</h4>
+                        <h4 className="mb-3">topic選択</h4>
                         <Form>
                             {topicList.map((option) => (
                             <Form.Check
