@@ -6,7 +6,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import topics from './topics.json';
 
 // Bootstrap
-import { Container, Row, Col } from 'react-bootstrap';
+import { Container, Row, Col, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { ChildComponentProps } from '@/app/page';
@@ -23,6 +23,7 @@ interface Message {
 interface TopicObject {
     topic: ROSLIB.Topic;
     show: string;
+    selected: boolean;
 }
 
 //////////////////////////////////////////////////
@@ -33,12 +34,6 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
     // RosTopick
     const [topicList, setTopicList] = useState<TopicObject[]>([]);
 
-    const formatMessage = (template: string, messageData: any): string => {
-        return template.replace(/\$\{(\w+)\}/g, (match, key) => {
-            return messageData[key] !== undefined ? messageData[key] : match;
-        });
-    }
-
     // JSONファイルからTopicリストを作成
     useEffect(() => {
         let topicArray: TopicObject[]= [];
@@ -48,25 +43,27 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
                 name: topic_.name,
                 messageType: topic_.messageType,
             });
-            topicArray.push({topic: newTopic, show: topic_.show});
+            topicArray.push({topic: newTopic, show: topic_.show, selected: false});
         }
         setTopicList(topicArray);
     }, [ros])
 
-    useEffect(() => {
-        for (let topic_ of topicList) {
-            topic_.topic.subscribe((msg: ROSLIB.Message) => {
-                const message = msg as Message;
-                updateLogArray(formatMessage(topic_.show, message));
-            })
-        }
-    }, [topicList])
+    const formatMessage = (template: string, messageData: any): string => {
+        return template.replace(/\$\{(\w+)\}/g, (match, key) => {
+            return messageData[key] !== undefined ? messageData[key] : match;
+        });
+    }
 
     // LogArray
     const [LogArray, setLogArray] = useState<string[]>([]);
     // 新しいログが来たときに配列に追加する
     const updateLogArray = (newLog: string) => {
-        setLogArray(prevEntries => [...prevEntries, newLog]);
+        console.log('updateLogArray');
+        setLogArray((prevEntries) => {
+            console.log('setLogArray');
+            console.log('prev: ', prevEntries);
+            console.log('newLog: ', newLog);
+            return [...prevEntries, newLog]});
     };
 
     // Log表示に関する設定
@@ -90,22 +87,66 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
         }
     }, [LogArray, autoScroll]);
 
+    const callbackRefs = useRef<Map<string, (message: ROSLIB.Message) => void>>(new Map());
+
+    const handleCheckboxChange = (option: TopicObject) => {
+        option.selected = !option.selected;
+        const topicName = option.topic.name;
+        if (option.selected) {
+            const subCallback = (message: ROSLIB.Message) => {
+                console.log('Received message:', message);
+                updateLogArray(formatMessage(option.show, message as Message));
+            }
+            callbackRefs.current.set(topicName, subCallback);
+            option.topic.subscribe(subCallback);
+        } else {
+            const callback = callbackRefs.current.get(topicName);
+            if (callback) {
+                option.topic.unsubscribe(callback);
+                callbackRefs.current.delete(topicName);
+            }
+        }
+    };
+
     // 表示
     return (
         <>
             <Container>
-                <Row>
-                    <Col>
-                        <h2>ログ表示</h2>
-                        <div ref={logContainerRef}
+                <Row className="justify-content-center">
+                    <Col xs={12} md={9} lg={10}>
+                        <h2 className="text-center mb-3">ログ表示</h2>
+                        <div
+                            ref={logContainerRef}
                             onScroll={handleScroll}
-                            style={{maxHeight: '300px', overflowY: 'auto', background: '#f8f9fa', padding: '10px', border: '1px solid #ddd',}}
+                            style={{
+                            maxHeight: '70vh',
+                            overflowY: 'auto',
+                            background: '#f8f9fa',
+                            padding: '10px',
+                            border: '1px solid #ddd',
+                            marginBottom: '20px'
+                            }}
                         >
                             {LogArray.map((entry, index) => (
-                                <div key={index}>{entry}</div>
+                            <div key={index}>{entry}</div>
                             ))}
                             <div ref={logEndRef} />
                         </div>
+                    </Col>
+                    <Col xs={12} md={3} lg={2}>
+                        <h4 className="mb-3">トピック選択</h4>
+                        <Form>
+                            {topicList.map((option) => (
+                            <Form.Check
+                                key={option.topic.name}
+                                type="checkbox"
+                                id={option.topic.name}
+                                label={option.topic.name}
+                                onChange={() => handleCheckboxChange(option)}
+                                className="mb-2"
+                            />
+                            ))}
+                        </Form>
                     </Col>
                 </Row>
             </Container>
