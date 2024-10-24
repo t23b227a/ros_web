@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChildComponentProps } from '@/app/page';
 import ROSLIB from 'roslib';
+import { useROS } from '@/app/ROSContext';
 
 interface StickState {
     x: number;   // [0 ~ 1]
@@ -110,7 +110,8 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
     );
 };
 
-const JoystickController: React.FC<ChildComponentProps> = ({ ros, rosConnected }) => {
+const JoystickController: React.FC = () => {
+    const { ros, rosConnected } = useROS();
     const [leftStick, setLeftStick] = useState<StickState>({ x: 0, y: 0 });
     const [rightStick, setRightStick] = useState<StickState>({ x: 0, y: 0 });
     const [buttons, setButtons] = useState<number[]>([0, 0]);
@@ -125,7 +126,7 @@ const JoystickController: React.FC<ChildComponentProps> = ({ ros, rosConnected }
                 messageType: 'sensor_msgs/msg/Joy',
             })
         );
-    }, [ros]);
+    }, [rosConnected, ros]);
 
     useEffect(() => {
         const axes = [leftStick.x, leftStick.y, rightStick.x, rightStick.y];

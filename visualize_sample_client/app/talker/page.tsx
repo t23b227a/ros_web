@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import * as ROSLIB from 'roslib';
-import { ChildComponentProps } from '@/app/page';
+import { useROS } from '@/app/ROSContext';
 
 // Bootstrap
 import { Button, Form } from 'react-bootstrap';
@@ -10,8 +10,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // Test string topic name
 const TOPIC_NAME_TEST_STR = 'test_talker';
 
-const Talker: React.FC<ChildComponentProps> = ({ ros, rosConnected }) => {
-    // Topick
+const Talker: React.FC = () => {
+    const { ros, rosConnected } = useROS();
     const [testStrTalker, setTestStrTalker] = useState<ROSLIB.Topic | null>(null);
 
     // ROS オブジェクト更新時に Listener & Sender を更新
@@ -24,7 +24,7 @@ const Talker: React.FC<ChildComponentProps> = ({ ros, rosConnected }) => {
                 messageType: 'std_msgs/String',
             })
         );
-    }, [ros]);
+    }, [ros, rosConnected]);
 
     const send = () => {
         let str = new ROSLIB.Message({data : comment});

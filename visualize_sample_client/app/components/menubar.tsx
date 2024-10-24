@@ -1,38 +1,32 @@
-'use client'
-import React, { useState, MouseEvent, useEffect, useRef } from 'react';
-import Container from 'react-bootstrap/Container';
-import { Navbar, Nav, NavDropdown } from 'react-bootstrap';
+'use client';
 
-interface MenuBarProps {
-    onSelectMenuItem: (item: string) => void;  // 親コンポーネントに通知するコールバック関数
-}
+import { Navbar, Stack, Button } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Link from 'next/link';
+import { useROS } from '../ROSContext';
 
-const MenuBar: React.FC<MenuBarProps> = ({ onSelectMenuItem }) => {
-    const handleSelect = (eventKey: string | null) => {
-        if(eventKey){
-            onSelectMenuItem(eventKey);
-        }
-    };
+export default function AppNavbar() {
+    const { rosConnected, connectToROS } = useROS();
+
     return (
-        <div >
-            <Navbar className="bg-body-tertiary">
-                <Container>
-                    <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                    <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="me-auto" onSelect={handleSelect}>
-                            <NavDropdown title="Menu" id="Menu">
-                                <NavDropdown.Item eventKey="Viewer" href="#viewer">Viewer</NavDropdown.Item>
-                                <NavDropdown.Item eventKey="Talker" href="#talker">Talker</NavDropdown.Item>
-                                <NavDropdown.Item eventKey="Controller" href="#controller">Controller</NavDropdown.Item>
-                                <NavDropdown.Divider />
-                                <NavDropdown.Item eventKey="Home" href="/">Home</NavDropdown.Item>
-                            </NavDropdown>
-                        </Nav>
-                    </Navbar.Collapse>
-                </Container>
-            </Navbar>
-        </div>
+        <Navbar className="bg-body-tertiary" expand="lg">
+        <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        <Navbar.Collapse id="basic-navbar-nav">
+            <Stack direction="horizontal" gap={3} className="me-auto">
+            <Button
+                variant={!rosConnected ? "primary" : "outline-secondary"}
+                disabled={rosConnected}
+                onClick={!rosConnected ? connectToROS : undefined}
+            >
+                ROS接続開始
+            </Button>
+            <h3>ROS接続状態...{rosConnected ? 'ON' : 'OFF'}</h3>
+            <Link href="/" className="nav-link">ホーム</Link>
+            <Link href="/viewer" className="nav-link">Viewer</Link>
+            <Link href="/talker" className="nav-link">Talker</Link>
+            <Link href="/controller" className="nav-link">Controller</Link>
+            </Stack>
+        </Navbar.Collapse>
+        </Navbar>
     );
-};
-
-export default MenuBar;
+}

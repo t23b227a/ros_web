@@ -9,8 +9,8 @@ import topics from '@/lib/topics.json';
 import { Container, Row, Col, Form } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { ChildComponentProps } from '@/app/page';
 import ROSLIB from 'roslib';
+import { useROS } from '@/app/ROSContext';
 
 // 随時追加が必要かも
 interface Message {
@@ -30,8 +30,8 @@ interface TopicObject {
 /// Viewer                                     ///
 //////////////////////////////////////////////////
 
-const Viewer: React.FC<ChildComponentProps> = ({ ros, rosConnected }) => {
-    // RosTopick
+const Viewer: React.FC = () => {
+    const { ros, rosConnected } = useROS();
     const [topicList, setTopicList] = useState<TopicObject[]>([]);
 
     // JSONファイルからTopicリストを作成
@@ -47,7 +47,7 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros, rosConnected }) => {
             topicArray.push({topic: newTopic, show: topic_.show, selected: false});
         }
         setTopicList(topicArray);
-    }, [ros])
+    }, [ros, rosConnected])
 
     const formatMessage = (template: string, messageData: any): string => {
         return template.replace(/\$\{(\w+)\}/g, (match, key) => {

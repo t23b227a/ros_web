@@ -1,27 +1,9 @@
-import localFont from "next/font/local";
-import "./globals.css";
+"use client";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+import { ROSProvider } from './ROSContext';
+import AppNavbar from './components/menubar';
 
-export const metadata = {
-  title: "Ros GUI Controller",
-  description: "GUI Controller for ROS",
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
       <head>
@@ -30,9 +12,10 @@ export default function RootLayout({
         <meta name="description" content="GUI Controller for ROS"></meta>
       </head>
       <body>
-        <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column" }}>
+        <ROSProvider>
+          <AppNavbar />
           {children}
-        </div>
+        </ROSProvider>
       </body>
     </html>
   );
