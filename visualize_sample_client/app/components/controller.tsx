@@ -125,7 +125,6 @@ const JoystickController: React.FC<ChildComponentProps> = ({ ros, rosConnected }
                 messageType: 'sensor_msgs/msg/Joy',
             })
         );
-        console.log('ROS Changed.')
     }, [ros]);
 
     useEffect(() => {
