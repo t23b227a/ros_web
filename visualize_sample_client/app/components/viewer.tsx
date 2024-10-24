@@ -3,7 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 
 // TopicList
-import topics from './topics.json';
+import topics from '@/lib/topics.json';
 
 // Bootstrap
 import { Container, Row, Col, Form } from 'react-bootstrap';
@@ -30,12 +30,13 @@ interface TopicObject {
 /// Viewer                                     ///
 //////////////////////////////////////////////////
 
-const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
+const Viewer: React.FC<ChildComponentProps> = ({ ros, rosConnected }) => {
     // RosTopick
     const [topicList, setTopicList] = useState<TopicObject[]>([]);
 
     // JSONファイルからTopicリストを作成
     useEffect(() => {
+        if (ros == null || !rosConnected) return;
         let topicArray: TopicObject[]= [];
         for (let topic_ of topics) {
             const newTopic = new ROSLIB.Topic({
@@ -58,11 +59,7 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
     const [LogArray, setLogArray] = useState<string[]>([]);
     // 新しいログが来たときに配列に追加する
     const updateLogArray = (newLog: string) => {
-        console.log('updateLogArray');
         setLogArray((prevEntries) => {
-            console.log('setLogArray');
-            console.log('prev: ', prevEntries);
-            console.log('newLog: ', newLog);
             return [...prevEntries, newLog]});
     };
 
@@ -94,7 +91,6 @@ const Viewer: React.FC<ChildComponentProps> = ({ ros }) => {
         const topicName = option.topic.name;
         if (option.selected) {
             const subCallback = (message: ROSLIB.Message) => {
-                console.log('Received message:', message);
                 updateLogArray(formatMessage(option.show, message as Message));
             }
             callbackRefs.current.set(topicName, subCallback);

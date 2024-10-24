@@ -1,5 +1,5 @@
 "use client";
-import React, { forwardRef, useImperativeHandle, useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import * as ROSLIB from 'roslib';
 import { ChildComponentProps } from '@/app/page';
 
@@ -10,12 +10,13 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 // Test string topic name
 const TOPIC_NAME_TEST_STR = 'test_talker';
 
-const Talker: React.FC<ChildComponentProps> = ({ ros }) => {
+const Talker: React.FC<ChildComponentProps> = ({ ros, rosConnected }) => {
     // Topick
     const [testStrTalker, setTestStrTalker] = useState<ROSLIB.Topic | null>(null);
 
     // ROS オブジェクト更新時に Listener & Sender を更新
     useEffect(() => {
+        if (ros == null || !rosConnected) return;
         setTestStrTalker(
             new ROSLIB.Topic({
                 ros: ros,

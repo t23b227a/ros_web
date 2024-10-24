@@ -1,8 +1,9 @@
 'use client'
-import MenuBar from '@/lib/menubar';
-import Viewer from '@/lib/viewer';
-import Talker from '@/lib/sender';
-import JoystickController from '@/lib/controller';
+import Viewer from '@/app/components/viewer';
+import Talker from '@/app/components/sender';
+import JoystickController from '@/app/components/controller';
+import { BrowserRouter as Router, Route, Link, Routes } from 'react-router-dom';
+import { Navbar } from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import ROSLIB from 'roslib';
 import { Button, Stack } from 'react-bootstrap';
@@ -11,31 +12,13 @@ import { Button, Stack } from 'react-bootstrap';
 const ROS_CONNECTION_URL = 'ws://127.0.0.1:9090';
 
 export interface ChildComponentProps {
-  ros: ROSLIB.Ros;
+  ros: ROSLIB.Ros | null;
+  rosConnected: boolean;
 }
 
 export default function Home() {
-  const [selectedMenuItem, setSelectedMenuItem] = useState<string>('Home');
-  const [isViewer, setViewer] = useState(true);
-  const [isSender, setSender] = useState(false);
-  const [isController, setController] = useState(false);
   const [ros, setRosObject] = useState<ROSLIB.Ros | null>(null);
   const [rosConnected, setRosConnected] = useState(false);
-  const handleMenuItemSelect = (item: string) => {
-    setSelectedMenuItem(item);
-  };
-  useEffect(() => {
-    setViewer(false);
-    setSender(false);
-    setController(false);
-    if(selectedMenuItem === 'Viewer'){
-      setViewer(true);
-    } else if (selectedMenuItem === 'Talker') {
-      setSender(true);
-    } else if (selectedMenuItem === 'Controller') {
-      setController(true);
-    }
-  }, [selectedMenuItem])
   const connectToROS = () => {
     console.log('ROS Operator: Try connection...');
     setRosConnected(false);
@@ -57,30 +40,40 @@ export default function Home() {
         console.log('ROS Operator: ROS connection closed.');
         setRosConnected?.(false);
     });
+    return () => {
+      ros.close();
+    };
   }, [ros]);
 
   return (
     <div>
-      <Stack direction="horizontal" gap={3}>
-        <h2>ROS接続状態 ... {rosConnected ? 'ON' : 'OFF'}</h2>
-        <Button
-            variant={!rosConnected ? "primary" : "secondary"}
-            disabled={rosConnected}
-            onClick={!rosConnected ? connectToROS : undefined}
-        >
-            ROS接続開始
-        </Button>
-        <MenuBar onSelectMenuItem={handleMenuItemSelect} />
-      </Stack>
-      {ros && isViewer && (
-        <Viewer ros={ros} />
-      )}
-      {ros && isSender && (
-        <Talker ros={ros} />
-      )}
-      {ros && isController && (
-        <JoystickController />
-      )}
+      <Router>
+        <Navbar className="bg-body-tertiary">
+            <Navbar.Toggle aria-controls="basic-navbar-nav" />
+            <Navbar.Collapse id="basic-navbar-nav">
+            <Stack direction="horizontal" gap={3}>
+              <h2>ROS接続状態 ... {rosConnected ? 'ON' : 'OFF'}</h2>
+              <Button
+                  variant={!rosConnected ? "primary" : "secondary"}
+                  disabled={rosConnected}
+                  onClick={!rosConnected ? connectToROS : undefined}
+              >
+                  ROS接続開始
+              </Button>
+                  <Link to="/">ホーム</Link>
+                  <Link to="/viewer">Viewer</Link>
+                  <Link to="/talker">Talker</Link>
+                  <Link to="/controller">Controller</Link>
+            </Stack>
+            </Navbar.Collapse>
+        </Navbar>
+          <Routes>
+            <Route path="/" element={<></>} />
+            <Route path="/viewer" element={<Viewer ros={ros} rosConnected={rosConnected} />} />
+            <Route path="/talker" element={<Talker ros={ros} rosConnected={rosConnected} />} />
+            <Route path="/controller" element={<JoystickController ros={ros} rosConnected={rosConnected} />} />
+          </Routes>
+      </Router>
     </div>
   );
 }
