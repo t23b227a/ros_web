@@ -69,9 +69,9 @@ export default function Home() {
         </Navbar>
           <Routes>
             <Route path="/" element={<></>} />
-            <Route path="/viewer" element={<Viewer ros={ros} rosConnected={rosConnected} />} />
-            <Route path="/talker" element={<Talker ros={ros} rosConnected={rosConnected} />} />
-            <Route path="/controller" element={<JoystickController ros={ros} rosConnected={rosConnected} />} />
+            <Route path="/viewer" element={<Viewer key={rosConnected.toString()} ros={ros} rosConnected={rosConnected} />} />
+            <Route path="/talker" element={<Talker key={rosConnected.toString()} ros={ros} rosConnected={rosConnected} />} />
+            <Route path="/controller" element={<JoystickController key={rosConnected.toString()} ros={ros} rosConnected={rosConnected} />} />
           </Routes>
       </Router>
     </div>

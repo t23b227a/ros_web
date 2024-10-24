@@ -125,6 +125,7 @@ const JoystickController: React.FC<ChildComponentProps> = ({ ros, rosConnected }
                 messageType: 'sensor_msgs/msg/Joy',
             })
         );
+        console.log('ROS Changed.')
     }, [ros]);
 
     useEffect(() => {
@@ -142,7 +143,6 @@ const JoystickController: React.FC<ChildComponentProps> = ({ ros, rosConnected }
             buttons: buttons,
         });
         talker?.publish(message);
-        console.log('axes:',axes)
         console.log('Controller message published: ', message);
     }, [leftStick, rightStick, buttons]);
     //新たなボタン用のコンポーネントを作成し、その引数として直接setButtonsを渡す
