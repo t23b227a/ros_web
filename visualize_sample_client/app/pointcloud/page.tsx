@@ -2,12 +2,17 @@
 // React
 import React, { useRef, useState, useEffect } from 'react';
 
+// Bootstrap
+import { Container, Row, Col } from 'react-bootstrap';
+
 // ROS
 import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
 import { Vector3 } from 'three';  // 受信したPointCloudをVector3に変換
 
-const TOPIC_NAME_POINT_CLOUD = 'pointcloud';
+import PointCloudViewer from '@/app/components/point_cloud_viewer';
+
+const TOPIC_NAME_POINT_CLOUD = '/point_cloud';
 
 // PointCloud2 型 (フィールド)
 export interface PointField {
@@ -41,13 +46,13 @@ const PointCloud: React.FC = () => {
         );
     }, [rosConnected, ros]);
 
-        // pointCloudListener更新時に subscribe 設定
+        // pointCloudListener更新時にsubscribe設定
         useEffect(() => {
             if (pointCloud === null) { return; }
             // NOTE: 本来はfield情報を読み込んでdataのパースを行う必要があるが、
             //       今回は1つ分の情報が (x, y, z) となっている前提で処理を行う。
             pointCloud.subscribe((msg: ROSLIB.Message) => {
-                const pcMsg:PointCloud2 = msg as PointCloud2;
+                const pcMsg: PointCloud2 = msg as PointCloud2;
                 const width = pcMsg.width;
                 const pointStep = pcMsg.point_step;
                 const decoded = atob(pcMsg.data);  // base64されているデータのデコード
@@ -67,11 +72,26 @@ const PointCloud: React.FC = () => {
                     const z = new Float32Array(new Uint8Array(data.slice(yPos, zPos)).buffer)[0];
                     vecs.push(new Vector3(x, y, z));
                 }
+                updatePointCloud(vecs);
             });
         }, [pointCloud]);
 
+    const pointCloudViewerRef = useRef<any>(null!);
+    // ROS側の点群データ更新
+    const updatePointCloud = (data:Vector3[]) => {
+        pointCloudViewerRef.current.update(data);
+    };
+
     return (
-        <></>
+        <>
+            <Container>
+                <Row>
+                    <Col>
+                        <PointCloudViewer ref={pointCloudViewerRef} />
+                    </Col>
+                </Row>
+            </Container>
+        </>
     );
 }
 
