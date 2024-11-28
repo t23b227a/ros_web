@@ -1,3 +1,4 @@
+"use client";
 import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react';
 
 // Three.js
