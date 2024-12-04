@@ -3,6 +3,7 @@
 import React, { useRef, useState, useEffect } from 'react';
 
 // Bootstrap
+import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col } from 'react-bootstrap';
 
 // ROS
