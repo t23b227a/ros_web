@@ -5,6 +5,11 @@
         "show": "[${level}] ${name}: ${msg}"
     },
     {
+        "name": "target_point",
+        "messageType": "geometry_msgs/Pose2D",
+        "show": "x: ${x}, y: ${y}"
+    },
+    {
         "name": "test_talker",
         "messageType": "std_msgs/String",
         "show": "${data}"

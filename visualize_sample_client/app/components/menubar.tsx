@@ -25,6 +25,7 @@ export default function AppNavbar() {
             <Link href="/viewer" className="nav-link">Viewer</Link>
             <Link href="/talker" className="nav-link">Talker</Link>
             <Link href="/controller" className="nav-link">Controller</Link>
+            <Link href="/image" className="nav-link">ImageManipulation</Link>
             <Link href="/pointcloud" className="nav-link">PointCloud</Link>
             <Link href="/camera" className="nav-link">Camera</Link>
             </Stack>
