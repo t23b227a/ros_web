@@ -50,17 +50,7 @@ const Camera: React.FC = () => {
             <Container>
                 <Row>
                     <Col>
-                        <div className="d-flex justify-content-center align-items-center">
-                        <Card className="mb-4" style={{ width: '48rem' }}>
-                        <Card.Body>
-                            <Card.Title>Camera Image</Card.Title>
-                            <Card.Subtitle className="mb-2 text-muted">subscribe image_raw</Card.Subtitle>
-                            <Card.Text>
-                            <img src={imgData} alt="Camera Data" />
-                            </Card.Text>
-                        </Card.Body>
-                        </Card>
-                        </div>
+                        <img src={imgData} alt="Camera Data" width={600}/>
                     </Col>
                 </Row>
             </Container>
