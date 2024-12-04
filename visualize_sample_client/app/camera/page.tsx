@@ -22,7 +22,7 @@ const Camera: React.FC = () => {
             new ROSLIB.Topic({
                 ros: ros,
                 name: TOPIC_NAME_IMAGE,
-                messageType: 'std_msgs/String',
+                messageType : 'sensor_msgs/CompressedImage',
             })
         );
     }, [rosConnected, ros]);
@@ -33,7 +33,7 @@ const Camera: React.FC = () => {
             if (camera === null) { return; }
                 // Image topic msg subscription event
                 camera.subscribe((msg: ROSLIB.Message) => {
-                    let image = msg as String;
+                    let image = "data:image/png;base64," + (msg as String).data;;
             });
         }, [camera]);
 
