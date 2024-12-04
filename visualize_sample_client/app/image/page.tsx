@@ -1,5 +1,9 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+
+// ROS
+import * as ROSLIB from 'roslib';
+import { useROS } from '@/app/ROSContext';
 
 // フィールドの寸法 (mm)
 const FIELD_WIDTH = 15100; // 横幅
@@ -9,9 +13,25 @@ const FIELD_HEIGHT = 8100; // 縦幅
 const IMAGE_WIDTH = 800; // 表示画像の幅（px）
 const IMAGE_HEIGHT = 430; // 表示画像の高さ（px）
 
+const TOPIC_NAME = 'target_point';
+
 const ImageManipulation: React.FC = () => {
     const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null);
     const [targetPosition, setTargetPosition] = useState<{ x: number; y: number } | null>(null);
+    const { ros, rosConnected } = useROS();
+    const [targetPublisher, setTargetPublisher] = useState<ROSLIB.Topic | null>(null);
+
+    // ROS オブジェクト更新時に Listener & Sender を更新
+    useEffect(() => {
+        if (ros == null || !rosConnected) return;
+        setTargetPublisher(
+            new ROSLIB.Topic({
+                ros: ros,
+                name: TOPIC_NAME,
+                messageType: 'geometry_msgs/Pose2D',
+            })
+        );
+    }, [ros, rosConnected]);
 
     // クリック処理
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
@@ -33,6 +53,15 @@ const ImageManipulation: React.FC = () => {
         setTargetPosition({ x: real_x, y: real_y });
         setClickPosition({x: pixel_x, y: pixel_y});
     };
+
+    useEffect(() => {
+        const message = new ROSLIB.Message({
+            x: targetPosition?.x, // 入力された値をfloatに変換
+            y: targetPosition?.y,
+            theta: 0.0,
+        });
+        targetPublisher?.publish(message);
+    })
 
     return (
         <div style={{ textAlign: 'center' }}>
