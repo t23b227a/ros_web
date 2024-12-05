@@ -4,8 +4,6 @@ import React, { forwardRef, useImperativeHandle, useRef, useState } from 'react'
 // Three.js
 import * as THREE from 'three';
 import { Canvas } from '@react-three/fiber';
-import { Vector3 } from 'three';
-import { useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei'; // カメラ処理
 import { Point, Points } from '@react-three/drei'; // Particle
 
