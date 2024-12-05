@@ -9,29 +9,24 @@ import { Container, Row, Col } from 'react-bootstrap';
 // ROS
 import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
-import { Vector3 } from 'three';  // 受信したPointCloudをVector3に変換
 
 import PointCloudViewer from '@/app/components/point_cloud_viewer';
 
 const TOPIC_NAME_POINT_CLOUD = '/point_cloud';
 
-// PointCloud2 型 (フィールド)
-export interface PointField {
-    name: string;
-    offset: number;
-    datatype: number;
-    count: number;
+// LaserScan 型
+export interface LaserScan {
+    angle_min: number;  // 開始角度 (ラジアン)
+    angle_max: number;  // 終了角度 (ラジアン)
+    angle_increment: number; // 各点間の角度 (ラジアン)
+    time_increment: number;  // 各点間の時間 (秒)
+    scan_time: number;  // スキャン全体の時間 (秒)
+    range_min: number;  // 測定可能な最小距離 (m)
+    range_max: number;  // 測定可能な最大距離 (m)
+    ranges: number[];   // 距離データ (m)
+    intensities: number[]; // 強度データ (オプション)
 }
 
-// PointCloud2 型 (データ)
-export interface PointCloud2 {
-    height: number;
-    width: number;
-    fields: PointField[];
-    point_step: number;
-    row_step: number;
-    data: string;  // base64 encoder されているので、decode して利用する
-}
 
 const PointCloud: React.FC = () => {
     const { ros, rosConnected } = useROS();
@@ -42,44 +37,35 @@ const PointCloud: React.FC = () => {
             new ROSLIB.Topic({
                 ros: ros,
                 name: TOPIC_NAME_POINT_CLOUD,
-                messageType: 'sensor_msgs/PointCloud2',
+                messageType: 'sensor_msgs/LaserScan',
             })
         );
     }, [rosConnected, ros]);
 
-        // pointCloudListener更新時にsubscribe設定
-        useEffect(() => {
-            if (pointCloud === null) { return; }
-            // NOTE: 本来はfield情報を読み込んでdataのパースを行う必要があるが、
-            //       今回は1つ分の情報が (x, y, z) となっている前提で処理を行う。
-            pointCloud.subscribe((msg: ROSLIB.Message) => {
-                const pcMsg: PointCloud2 = msg as PointCloud2;
-                const width = pcMsg.width;
-                const pointStep = pcMsg.point_step;
-                const decoded = atob(pcMsg.data);  // base64されているデータのデコード
-                const data:number[] = decoded.split('').map(l => l.charCodeAt(0));  // uint8配列に変換
-                console.log('ROS operator received PointCloud2 msg, size = ', width);
-                // Vector3の配列に変換
-                const vecs:Vector3[] = [];
-                for (let n = 0; n < width; n++) {
-                    // バイナリ情報のインデックスを取得
-                    const bPos = n * pointStep +  0;
-                    const xPos = n * pointStep +  4;
-                    const yPos = n * pointStep +  8;
-                    const zPos = n * pointStep + 12;
-                    // バイナリ → 数値変換して追加
-                    const x = new Float32Array(new Uint8Array(data.slice(bPos, xPos)).buffer)[0];
-                    const y = new Float32Array(new Uint8Array(data.slice(xPos, yPos)).buffer)[0];
-                    const z = new Float32Array(new Uint8Array(data.slice(yPos, zPos)).buffer)[0];
-                    vecs.push(new Vector3(x, y, z));
-                }
-                updatePointCloud(vecs);
+    // pointCloudListener更新時にsubscribe設定
+    useEffect(() => {
+        if (pointCloud === null) { return; }
+        pointCloud.subscribe((msg: ROSLIB.Message) => {
+            const scanMsg: LaserScan = msg as LaserScan;
+            console.log('ROS operator received LaserScan msg');
+            const angleMin = scanMsg.angle_min;
+            const angleMax = scanMsg.angle_max;
+            const angleIncrement = scanMsg.angle_increment;
+            const ranges = scanMsg.ranges;
+            // 各点を2D座標 (x, y) に変換
+            const points = ranges.map((range, index) => {
+                const angle = angleMin + index * angleIncrement;
+                const x = range * Math.cos(angle);
+                const y = range * Math.sin(angle);
+                return { x, y }; // 各点の (x, y) 座標を配列に格納
             });
-        }, [pointCloud]);
+            updateLaserScan(points);
+        });
+    }, [pointCloud]);
 
     const pointCloudViewerRef = useRef<any>(null!);
     // ROS側の点群データ更新
-    const updatePointCloud = (data:Vector3[]) => {
+    const updateLaserScan = (data: { x: number; y: number }[]) => {
         pointCloudViewerRef.current.update(data);
     };
 

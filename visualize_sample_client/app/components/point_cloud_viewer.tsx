@@ -37,22 +37,16 @@ const ParticlesViewer = forwardRef((props, ref) => {
     // 上位モジュールから呼び出される処理
     useImperativeHandle(ref, () => ({
         // 点群更新
-        update: (newPoints: Vector3[]) => {
-            setPoints(newPoints.slice(0, PARTICLES_MAX));  // 最大値までに制限をかける
-        }
+        update: (newPoints: { x: number; y: number }[]) => {
+            setPoints(newPoints.slice(0, PARTICLES_MAX)); // 最大値までに制限をかける
+        },
     }));
 
     // 描画グループに対するref
     const gRef = useRef<THREE.Group>(null!);
 
     // 点群
-    const [points, setPoints] = useState<Vector3[]>([]);
-
-    // Three.js フレーム毎処理
-    // useFrame(() => {
-    //     // 実験用に、描画グループに回転をかける
-    //     gRef.current.rotation.z += 0.001;
-    // });
+    const [points, setPoints] = useState<{ x: number; y: number }[]>([]);
 
     // 表示
     return (
@@ -64,7 +58,7 @@ const ParticlesViewer = forwardRef((props, ref) => {
                         <pointsMaterial vertexColors size={PARTICLE_SIZE} />
                         {points.map((p, i) => (
                             <Point key={i}
-                                position={[p.x, p.y, p.z]}
+                                position={[p.x, p.y, 0]}    // zを0に固定(2D 表示)
                                 color={PARTICLE_COLOR} />
                         ))}
                     </Points>
@@ -83,9 +77,9 @@ const PointCloudViewer = forwardRef((props, ref) => {
     // 上位モジュールから呼び出される処理
     useImperativeHandle(ref, () => ({
         // 点群更新
-        update: (newPoints: Vector3[]) => {
-            particlesRef.current.update(newPoints);  // 点群表示モジュールにそのまま投げる
-        }
+        update: (newPoints: { x: number; y: number }[]) => {
+            particlesRef.current.update(newPoints); // 点群表示モジュールにそのまま投げる
+        },
     }));
 
 
