@@ -11,6 +11,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 
+import Image from 'next/image';
+
 const TOPIC_NAME_IMAGE = 'camera';
 
 // String 型
@@ -40,7 +42,7 @@ const Camera: React.FC = () => {
             if (camera === null) { return; }
                 // Image topic msg subscription event
                 camera.subscribe((msg: ROSLIB.Message) => {
-                    let image = "data:image/png;base64," + (msg as String).data;
+                    const image = "data:image/png;base64," + (msg as string);
                     setImgData(image);
             });
         }, [camera]);
@@ -50,7 +52,7 @@ const Camera: React.FC = () => {
             <Container>
                 <Row>
                     <Col>
-                        <img src={imgData} alt="Camera Data" width={600}/>
+                        <Image src={imgData} alt="Camera Data" width={600}/>
                     </Col>
                 </Row>
             </Container>
