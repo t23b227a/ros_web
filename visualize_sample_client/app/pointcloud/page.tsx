@@ -12,7 +12,7 @@ import { useROS } from '@/app/ROSContext';
 
 import PointCloudViewer from '@/app/components/point_cloud_viewer';
 
-const TOPIC_NAME_POINT_CLOUD = '/point_cloud';
+const TOPIC_NAME_POINT_CLOUD = '/scan_multi';
 
 // LaserScan 型
 export interface LaserScan {
@@ -66,7 +66,7 @@ const PointCloud: React.FC = () => {
     const pointCloudViewerRef = useRef<any>(null!);
     // ROS側の点群データ更新
     const updateLaserScan = (data: { x: number; y: number }[]) => {
-        pointCloudViewerRef.current.update(data);
+        pointCloudViewerRef?.current.update(data);
     };
 
     return (

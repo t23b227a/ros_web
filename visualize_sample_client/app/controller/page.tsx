@@ -6,6 +6,8 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
 
+const MAX_SPEED = 1.0;
+
 interface StickState {
     x: number;   // [0 ~ 1]
     y: number;   // [0 ~ 1]
@@ -125,8 +127,8 @@ const JoystickController: React.FC = () => {
         setTalker(
             new ROSLIB.Topic({
                 ros: ros,
-                name: 'controller',
-                messageType: 'sensor_msgs/msg/Joy',
+                name: '/cmd_vel',
+                messageType: 'geometry_msgs/TwistStamped',
             })
         );
     }, [rosConnected, ros]);
@@ -142,8 +144,10 @@ const JoystickController: React.FC = () => {
                 },
                 frame_id: '',
             },
-            axes: axes,
-            buttons: buttons,
+            twist: {
+                linear: { x: leftStick.x * MAX_SPEED, y: leftStick.y * MAX_SPEED, z: 0.0 },
+                angular: { x: 0.0, y: 0.0, z: rightStick.x },
+            },
         });
         talker?.publish(message);
         console.log('Controller message published: ', message);
@@ -155,8 +159,8 @@ const JoystickController: React.FC = () => {
             <div>
                 <h3>左スティック</h3>
                 <Stick onChange={setLeftStick} id="left" />
-                <p>x: {leftStick.x.toFixed(5)}</p>
-                <p>y: {leftStick.y.toFixed(5)}</p>
+                <p>x: {(leftStick.x * MAX_SPEED).toFixed(5)}</p>
+                <p>y: {(leftStick.y * MAX_SPEED).toFixed(5)}</p>
             </div>
             <div>
                 <h3>右スティック</h3>
