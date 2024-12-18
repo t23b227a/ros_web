@@ -160,7 +160,7 @@ const JoystickController: React.FC = () => {
     //新たなボタン用のコンポーネントを作成し、その引数として直接setButtonsを渡す
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '100vh' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '90vh' }}>
             <div>
                 <h3>左スティック</h3>
                 <Stick onChange={setLeftStick} id="left" />
