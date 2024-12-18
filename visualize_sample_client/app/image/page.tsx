@@ -50,7 +50,7 @@ const ImageManipulation: React.FC = () => {
         const real_y = (relativePixelY / IMAGE_HEIGHT) * FIELD_HEIGHT / 1000;
 
         // 状態を更新
-        setTargetPosition({ x: real_x, y: real_y });
+        setTargetPosition({ x: real_y, y: real_x });
         setClickPosition({x: pixel_x, y: pixel_y});
     };
 
