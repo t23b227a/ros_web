@@ -92,8 +92,10 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
             onTouchStart={handleStart}
             style={{
                 position: 'relative',
-                width: '200px',
-                height: '200px',
+                width: '30vw', // Relative size
+                height: '30vw', // Keep aspect ratio
+                maxWidth: '200px', // Optional max size
+                maxHeight: '200px',
                 backgroundColor: '#ccc',
                 borderRadius: '50%',
             }}
@@ -102,8 +104,10 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
                 ref={stickRef}
                 style={{
                     position: 'absolute',
-                    width: '50px',
-                    height: '50px',
+                    width: '10vw', // Relative size
+                    height: '10vw',
+                    maxWidth: '50px', // Optional max size
+                    maxHeight: '50px',
                     backgroundColor: '#333',
                     borderRadius: '50%',
                     top: '50%',
