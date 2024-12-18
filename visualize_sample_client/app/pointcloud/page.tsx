@@ -66,7 +66,7 @@ const PointCloud: React.FC = () => {
     const pointCloudViewerRef = useRef<any>(null!);
     // ROS側の点群データ更新
     const updateLaserScan = (data: { x: number; y: number }[]) => {
-        pointCloudViewerRef?.current.update(data);
+        pointCloudViewerRef?.current?.update(data);
     };
 
     return (
