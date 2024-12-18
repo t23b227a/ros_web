@@ -3,7 +3,7 @@
 import React, { createContext, useState, useEffect, useContext } from 'react';
 import ROSLIB from 'roslib';
 
-const ROS_CONNECTION_URL = 'ws://127.0.0.1:9090';  //rosサーバー開くところのIP
+const ROS_CONNECTION_URL = 'ws://127.0.0.1:9090'; // 'ws://192.168.1.162:9090';   //TODO
 
 interface ROSContextType {
     ros: ROSLIB.Ros | null;
