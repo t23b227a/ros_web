@@ -7,6 +7,7 @@ import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
 
 const MAX_SPEED = 1.0;
+const TOPIC_NAME = 'R1/cmd_vel';
 
 interface StickState {
     x: number;   // [0 ~ 1]
@@ -131,7 +132,7 @@ const JoystickController: React.FC = () => {
         setTalker(
             new ROSLIB.Topic({
                 ros: ros,
-                name: '/cmd_vel',
+                name: TOPIC_NAME,
                 messageType: 'geometry_msgs/TwistStamped',
             })
         );
