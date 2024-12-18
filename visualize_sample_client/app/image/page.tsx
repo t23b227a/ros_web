@@ -46,12 +46,12 @@ const ImageManipulation: React.FC = () => {
         const relativePixelY = IMAGE_HEIGHT / 2 - pixel_y;
 
         // ピクセル座標を実フィールドの座標（mm）に変換
-        const real_y = (relativePixelX / IMAGE_WIDTH) * FIELD_WIDTH / 1000;
-        const real_x = (relativePixelY / IMAGE_HEIGHT) * FIELD_HEIGHT / 1000;
+        const real_x = (relativePixelX / IMAGE_WIDTH) * FIELD_WIDTH / 1000;
+        const real_y = (relativePixelY / IMAGE_HEIGHT) * FIELD_HEIGHT / 1000;
 
         // 状態を更新
         setTargetPosition({ x: real_x, y: real_y });
-        setClickPosition({ x: pixel_x, y: pixel_y });
+        setClickPosition({x: pixel_x, y: pixel_y});
     };
 
     useEffect(() => {
