@@ -12,7 +12,7 @@ import { useROS } from '@/app/ROSContext';
 
 import PointCloudViewer from '@/app/components/point_cloud_viewer';
 
-const TOPIC_NAME_POINT_CLOUD = '/scan_multi';
+const TOPIC_NAME_POINT_CLOUD = '/R1/scan_multi';
 
 // LaserScan 型
 export interface LaserScan {
