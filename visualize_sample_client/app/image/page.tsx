@@ -13,7 +13,7 @@ const FIELD_HEIGHT = 8100; // 縦幅
 const IMAGE_WIDTH = 800; // 表示画像の幅（px）
 const IMAGE_HEIGHT = 430; // 表示画像の高さ（px）
 
-const TOPIC_NAME = 'target_point';
+const TOPIC_NAME = '/goal_pose';
 
 const ImageManipulation: React.FC = () => {
     const [clickPosition, setClickPosition] = useState<{ x: number; y: number } | null>(null);
@@ -28,7 +28,7 @@ const ImageManipulation: React.FC = () => {
             new ROSLIB.Topic({
                 ros: ros,
                 name: TOPIC_NAME,
-                messageType: 'geometry_msgs/Pose2D',
+                messageType: 'geometry_msgs/PoseStamped',
             })
         );
     }, [ros, rosConnected]);
@@ -56,12 +56,26 @@ const ImageManipulation: React.FC = () => {
 
     useEffect(() => {
         const message = new ROSLIB.Message({
-            x: targetPosition?.x, // 入力された値をfloatに変換
-            y: targetPosition?.y,
-            theta: 0.0,
+            header: {
+                stamp: { sec: 0, nsec: 0 },
+                frame_id: "map",
+            },
+            pose: {
+                position: {
+                    x: targetPosition?.x,
+                    y: targetPosition?.y,
+                    z: 0.0,
+                },
+                orientation: {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                    w: 1.0,
+                },
+            },
         });
         targetPublisher?.publish(message);
-    })
+    },[targetPosition])
 
     return (
         <div style={{ textAlign: 'center' }}>
