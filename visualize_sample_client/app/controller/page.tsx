@@ -27,8 +27,7 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
     const touchIdRef = useRef<number | null>(null);
 
     const handleMove = useCallback((e: TouchEvent) => {
-        e.preventDefault();
-        if(touchIdRef.current === e.changedTouches[0].identifier) return;
+        if(touchIdRef.current !== e.changedTouches[0].identifier) return;
         if (!baseRef.current || !stickRef.current) return;
         let clientX, clientY;
         if (e instanceof MouseEvent) {
