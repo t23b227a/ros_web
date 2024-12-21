@@ -26,8 +26,9 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
     const stickRef = useRef<HTMLDivElement>(null);
     const touchIdRef = useRef<number | null>(null);
 
-    const handleMove = useCallback((e: MouseEvent | TouchEvent) => {
+    const handleMove = useCallback((e: TouchEvent) => {
         e.preventDefault();
+        if(touchIdRef.current === e.changedTouches[0].identifier) return;
         if (!baseRef.current || !stickRef.current) return;
         let clientX, clientY;
         if (e instanceof MouseEvent) {
@@ -52,11 +53,13 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
         onChange({ x: x/maxDistance, y: -y/maxDistance });
     }, [onChange]);
 
-    const handleEnd = useCallback(() => {
-        setIsActive(false);
-        setPosition({ x: 0, y: 0 });
-        onChange({ x: 0, y: 0 });
-        touchIdRef.current = null;
+    const handleEnd = useCallback((e: TouchEvent) => {
+        if(touchIdRef.current === e.changedTouches[0].identifier) {
+            setIsActive(false);
+            setPosition({ x: 0, y: 0 });
+            onChange({ x: 0, y: 0 });
+            touchIdRef.current = null;
+        }
     }, [onChange]);
 
     const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -65,7 +68,8 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
         if (baseRef.current && baseRef.current.contains(target)) {
             setIsActive(true);
             if (e.type === 'touchstart') {
-                const touch = (e as React.TouchEvent).touches[0];  //怪しい
+                const e_touches = (e as React.TouchEvent).touches;
+                const touch = e_touches[e_touches.length - 1];
                 touchIdRef.current = touch.identifier;
             }
         }
@@ -73,14 +77,14 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
 
     useEffect(() => {
         if (isActive) {
-            document.addEventListener('mousemove', handleMove);
-            document.addEventListener('mouseup', handleEnd);
+            // document.addEventListener('mousemove', handleMove);
+            // document.addEventListener('mouseup', handleEnd);
             document.addEventListener('touchmove', handleMove);
             document.addEventListener('touchend', handleEnd);
             document.addEventListener('touchcancel', handleEnd);
         } else {
-            document.removeEventListener('mousemove', handleMove);
-            document.removeEventListener('mouseup', handleEnd);
+            // document.removeEventListener('mousemove', handleMove);
+            // document.removeEventListener('mouseup', handleEnd);
             document.removeEventListener('touchmove', handleMove);
             document.removeEventListener('touchend', handleEnd);
             document.removeEventListener('touchcancel', handleEnd);
