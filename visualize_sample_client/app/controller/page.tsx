@@ -27,7 +27,8 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
     const touchIdRef = useRef<number | null>(null);
 
     const touchMove = useCallback((e: TouchEvent) => {
-        if(touchIdRef.current !== e.changedTouches[0].identifier) return;
+        e.preventDefault();
+        if(!Array.from(e.changedTouches).some(t => t.identifier === touchIdRef.current)) return;
         if (!baseRef.current || !stickRef.current) return;
         let clientX, clientY;
         const touch = Array.from(e.touches).find(t => t.identifier === touchIdRef.current);
@@ -106,7 +107,7 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
 
     useEffect(() => {
         if (isActive) {
-            document.addEventListener('touchmove', touchMove);
+            document.addEventListener('touchmove', touchMove, { passive: false });
             document.addEventListener('touchend', touchEnd);
             document.addEventListener('touchcancel', touchEnd);
         } else {
