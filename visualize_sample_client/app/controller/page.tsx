@@ -26,19 +26,14 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
     const stickRef = useRef<HTMLDivElement>(null);
     const touchIdRef = useRef<number | null>(null);
 
-    const handleMove = useCallback((e: TouchEvent) => {
+    const touchMove = useCallback((e: TouchEvent) => {
         if(touchIdRef.current !== e.changedTouches[0].identifier) return;
         if (!baseRef.current || !stickRef.current) return;
         let clientX, clientY;
-        if (e instanceof MouseEvent) {
-            clientX = e.clientX;
-            clientY = e.clientY;
-        } else {
-            const touch = Array.from(e.touches).find(t => t.identifier === touchIdRef.current);
-            if (!touch) return;
-            clientX = touch.clientX;
-            clientY = touch.clientY;
-        }
+        const touch = Array.from(e.touches).find(t => t.identifier === touchIdRef.current);
+        if (!touch) return;
+        clientX = touch.clientX;
+        clientY = touch.clientY;
         const baseRect = baseRef.current.getBoundingClientRect();
         const maxDistance = baseRect.width / 2 - stickRef.current.offsetWidth / 2;
         let x = clientX - baseRect.left - baseRect.width / 2;
@@ -52,13 +47,38 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
         onChange({ x: x/maxDistance, y: -y/maxDistance });
     }, [onChange]);
 
-    const handleEnd = useCallback((e: TouchEvent) => {
+    const mouseMove = useCallback((e: MouseEvent) => {
+        if (!baseRef.current || !stickRef.current) return;
+        let clientX, clientY;
+        clientX = e.clientX;
+        clientY = e.clientY;
+        const baseRect = baseRef.current.getBoundingClientRect();
+        const maxDistance = baseRect.width / 2 - stickRef.current.offsetWidth / 2;
+        let x = clientX - baseRect.left - baseRect.width / 2;
+        let y = clientY - baseRect.top - baseRect.height / 2;
+        const distance = Math.sqrt(x*x + y*y);
+        if (distance > maxDistance) {
+            x *= maxDistance / distance;
+            y *= maxDistance / distance;
+        }
+        setPosition({ x, y });
+        onChange({ x: x/maxDistance, y: -y/maxDistance });
+    }, [onChange]);
+
+    const touchEnd = useCallback((e: TouchEvent) => {
         if(touchIdRef.current === e.changedTouches[0].identifier) {
             setIsActive(false);
             setPosition({ x: 0, y: 0 });
             onChange({ x: 0, y: 0 });
             touchIdRef.current = null;
         }
+    }, [onChange]);
+
+    const mouseEnd = useCallback((e: MouseEvent) => {
+        setIsActive(false);
+        setPosition({ x: 0, y: 0 });
+        onChange({ x: 0, y: 0 });
+        touchIdRef.current = null;
     }, [onChange]);
 
     const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
@@ -72,23 +92,31 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
                 touchIdRef.current = touch.identifier;
             }
         }
-    }, [handleMove]);
+    }, [touchMove]);
 
     useEffect(() => {
         if (isActive) {
-            // document.addEventListener('mousemove', handleMove);
-            // document.addEventListener('mouseup', handleEnd);
-            document.addEventListener('touchmove', handleMove);
-            document.addEventListener('touchend', handleEnd);
-            document.addEventListener('touchcancel', handleEnd);
+            document.addEventListener('touchmove', touchMove);
+            document.addEventListener('touchend', touchEnd);
+            document.addEventListener('touchcancel', touchEnd);
         } else {
             // document.removeEventListener('mousemove', handleMove);
             // document.removeEventListener('mouseup', handleEnd);
-            document.removeEventListener('touchmove', handleMove);
-            document.removeEventListener('touchend', handleEnd);
-            document.removeEventListener('touchcancel', handleEnd);
+            document.removeEventListener('touchmove', touchMove);
+            document.removeEventListener('touchend', touchEnd);
+            document.removeEventListener('touchcancel', touchEnd);
         }
-    }, [isActive, handleMove, handleEnd]);
+    }, [isActive, touchMove, touchEnd]);
+
+    useEffect(() => {
+        if (isActive) {
+            document.addEventListener('mousemove', mouseMove);
+            document.addEventListener('mouseup', mouseEnd);
+        } else {
+            document.removeEventListener('mousemove', mouseMove);
+            document.removeEventListener('mouseup', mouseEnd);
+        }
+    }, [isActive, mouseMove,mouseEnd]);
 
     return (
         <div
