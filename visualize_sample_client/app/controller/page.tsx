@@ -28,10 +28,9 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
 
     const touchMove = useCallback((e: TouchEvent) => {
         e.preventDefault();
-        if(!Array.from(e.changedTouches).some(t => t.identifier === touchIdRef.current)) return;
         if (!baseRef.current || !stickRef.current) return;
         let clientX, clientY;
-        const touch = Array.from(e.touches).find(t => t.identifier === touchIdRef.current);
+        const touch = Array.from(e.changedTouches).find(t => t.identifier === touchIdRef.current);
         if (!touch) return;
         clientX = touch.clientX;
         clientY = touch.clientY;
@@ -88,7 +87,7 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
         if (baseRef.current && baseRef.current.contains(target)) {
             setIsActive(true);
             if (e.type === 'touchstart') {
-                const e_touches = (e as React.TouchEvent).touches;
+                const e_touches = (e as React.TouchEvent).changedTouches;
                 const touch = e_touches[e_touches.length - 1];
                 touchIdRef.current = touch.identifier;
             }
