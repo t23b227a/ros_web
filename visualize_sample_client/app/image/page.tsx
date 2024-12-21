@@ -82,39 +82,39 @@ const ImageManipulation: React.FC = () => {
     },[targetPosition])
 
     return (
-        <div style={{ textAlign: 'center' }}>
-            <h1>ロボットコントローラー</h1>
-
+        <Container>
             {/* フィールド画像 */}
-            <div
-                onClick={handleClick}
-                style={{
-                position: 'relative',
-                width: `${IMAGE_WIDTH}px`,
-                height: `${IMAGE_HEIGHT}px`,
-                backgroundImage: 'url(/ABU2025_field.png)',
-                backgroundSize: 'cover',
-                cursor: 'crosshair',
-                border: '1px solid black',
-                margin: '0 auto',
-                }}
-            >
-                {/* マーカー */}
-                {clickPosition && (
+            <Row>
                 <div
+                    onClick={handleClick}
                     style={{
-                    position: "absolute",
-                    top: `${clickPosition.y - 5}px`, // マーカー中心を合わせる
-                    left: `${clickPosition.x - 5}px`,
-                    width: "10px",
-                    height: "10px",
-                    backgroundColor: "red",
-                    borderRadius: "50%", // 円形
-                    pointerEvents: "none", // クリックを無効化
+                    position: 'relative',
+                    width: `${IMAGE_WIDTH}px`,
+                    height: `${IMAGE_HEIGHT}px`,
+                    backgroundImage: 'url(/ABU2025_field.png)',
+                    backgroundSize: 'cover',
+                    cursor: 'crosshair',
+                    border: '1px solid black',
+                    margin: '0 auto',
                     }}
-                ></div>
-            )}
-        </div>
+                >
+                    {/* マーカー */}
+                    {clickPosition && (
+                    <div
+                        style={{
+                        position: "absolute",
+                        top: `${clickPosition.y - 5}px`, // マーカー中心を合わせる
+                        left: `${clickPosition.x - 5}px`,
+                        width: "10px",
+                        height: "10px",
+                        backgroundColor: "red",
+                        borderRadius: "50%", // 円形
+                        pointerEvents: "none", // クリックを無効化
+                        }}
+                    ></div>
+                )}
+            </div>
+        </Row>
 
         {/* 座標出力 */}
         {targetPosition && clickPosition && (
@@ -127,7 +127,7 @@ const ImageManipulation: React.FC = () => {
                 </Col>
             </Row>
         )}
-        </div>
+        </Container>
     );
 };
 
