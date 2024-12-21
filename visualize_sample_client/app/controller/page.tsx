@@ -96,20 +96,6 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
 
     useEffect(() => {
         if (isActive) {
-            document.addEventListener('touchmove', touchMove);
-            document.addEventListener('touchend', touchEnd);
-            document.addEventListener('touchcancel', touchEnd);
-        } else {
-            // document.removeEventListener('mousemove', handleMove);
-            // document.removeEventListener('mouseup', handleEnd);
-            document.removeEventListener('touchmove', touchMove);
-            document.removeEventListener('touchend', touchEnd);
-            document.removeEventListener('touchcancel', touchEnd);
-        }
-    }, [isActive, touchMove, touchEnd]);
-
-    useEffect(() => {
-        if (isActive) {
             document.addEventListener('mousemove', mouseMove);
             document.addEventListener('mouseup', mouseEnd);
         } else {
@@ -117,6 +103,18 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
             document.removeEventListener('mouseup', mouseEnd);
         }
     }, [isActive, mouseMove,mouseEnd]);
+
+    useEffect(() => {
+        if (isActive) {
+            document.addEventListener('touchmove', touchMove);
+            document.addEventListener('touchend', touchEnd);
+            document.addEventListener('touchcancel', touchEnd);
+        } else {
+            document.removeEventListener('touchmove', touchMove);
+            document.removeEventListener('touchend', touchEnd);
+            document.removeEventListener('touchcancel', touchEnd);
+        }
+    }, [isActive, touchMove, touchEnd]);
 
     return (
         <div
@@ -186,7 +184,7 @@ const JoystickController: React.FC = () => {
             },
         });
         talker?.publish(message);
-        console.log('Controller message published: ', message);
+        // console.log('Controller message published: ', message);
     }, [leftStick, rightStick, buttons]);
     //新たなボタン用のコンポーネントを作成し、その引数として直接setButtonsを渡す
 
