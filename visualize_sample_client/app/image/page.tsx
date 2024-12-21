@@ -1,6 +1,10 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 
+// Bootstrap
+import { Container, Row, Col } from 'react-bootstrap';
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 // ROS
 import * as ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
@@ -79,47 +83,49 @@ const ImageManipulation: React.FC = () => {
 
     return (
         <div style={{ textAlign: 'center' }}>
-        <h1>ロボットコントローラー</h1>
-        <p>画像をクリックして目標位置を設定してください。</p>
+            <h1>ロボットコントローラー</h1>
 
-        {/* フィールド画像 */}
-        <div
-            onClick={handleClick}
-            style={{
-            position: 'relative',
-            width: `${IMAGE_WIDTH}px`,
-            height: `${IMAGE_HEIGHT}px`,
-            backgroundImage: 'url(/ABU2025_field.png)',
-            backgroundSize: 'cover',
-            cursor: 'crosshair',
-            border: '1px solid black',
-            margin: '0 auto',
-            }}
-        >
-            {/* マーカー */}
-            {clickPosition && (
+            {/* フィールド画像 */}
             <div
+                onClick={handleClick}
                 style={{
-                position: "absolute",
-                top: `${clickPosition.y - 5}px`, // マーカー中心を合わせる
-                left: `${clickPosition.x - 5}px`,
-                width: "10px",
-                height: "10px",
-                backgroundColor: "red",
-                borderRadius: "50%", // 円形
-                pointerEvents: "none", // クリックを無効化
+                position: 'relative',
+                width: `${IMAGE_WIDTH}px`,
+                height: `${IMAGE_HEIGHT}px`,
+                backgroundImage: 'url(/ABU2025_field.png)',
+                backgroundSize: 'cover',
+                cursor: 'crosshair',
+                border: '1px solid black',
+                margin: '0 auto',
                 }}
-            ></div>
-        )}
+            >
+                {/* マーカー */}
+                {clickPosition && (
+                <div
+                    style={{
+                    position: "absolute",
+                    top: `${clickPosition.y - 5}px`, // マーカー中心を合わせる
+                    left: `${clickPosition.x - 5}px`,
+                    width: "10px",
+                    height: "10px",
+                    backgroundColor: "red",
+                    borderRadius: "50%", // 円形
+                    pointerEvents: "none", // クリックを無効化
+                    }}
+                ></div>
+            )}
         </div>
 
         {/* 座標出力 */}
         {targetPosition && clickPosition && (
-            <div style={{ marginTop: '20px', fontSize: '18px' }}>
-            <p>目標位置 (m):</p>
-            <p>X座標: {targetPosition.x.toFixed(5)} m</p>
-            <p>Y座標: {targetPosition.y.toFixed(5)} m</p>
-            </div>
+            <Row>
+                <Col sm={{ span: 2, offset: 4 }}>
+                    <p>X座標: {targetPosition.x.toFixed(5)} m</p>
+                </Col>
+                <Col sm={2}>
+                    <p>Y座標: {targetPosition.y.toFixed(5)} m</p>
+                </Col>
+            </Row>
         )}
         </div>
     );

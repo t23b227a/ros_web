@@ -27,6 +27,7 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
     const touchIdRef = useRef<number | null>(null);
 
     const handleMove = useCallback((e: MouseEvent | TouchEvent) => {
+        e.preventDefault();
         if (!baseRef.current || !stickRef.current) return;
         let clientX, clientY;
         if (e instanceof MouseEvent) {
@@ -64,7 +65,7 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
         if (baseRef.current && baseRef.current.contains(target)) {
             setIsActive(true);
             if (e.type === 'touchstart') {
-                const touch = (e as React.TouchEvent).touches[0];
+                const touch = (e as React.TouchEvent).touches[0];  //怪しい
                 touchIdRef.current = touch.identifier;
             }
         }
@@ -139,7 +140,6 @@ const JoystickController: React.FC = () => {
     }, [rosConnected, ros]);
 
     useEffect(() => {
-        const axes = [leftStick.x, leftStick.y, rightStick.x, rightStick.y];
         if (!rosConnected) return;
         const message = new ROSLIB.Message({
             header: {
