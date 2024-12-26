@@ -13,14 +13,6 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
 
-// 随時追加が必要かも
-interface Message {
-    data?: string;
-    level?: number;
-    name?: string;
-    msg?: string;
-}
-
 interface TopicObject {
     topic: ROSLIB.Topic;
     show: string;
@@ -51,8 +43,11 @@ const Viewer: React.FC = () => {
     }, [ros, rosConnected])
 
     const formatMessage = (template: string, messageData: any): string => {
-        return template.replace(/\$\{(\w+)\}/g, (match, key) => {
-            return messageData[key] !== undefined ? messageData[key] : match;
+        return template.replace(/\$\{([\w.]+)\}/g, (match, key) => {
+            const value = key.split('.').reduce((obj: any, prop: any) => {
+                return obj && obj[prop] !== undefined ? obj[prop] : undefined;
+            }, messageData);
+            return value !== undefined ? value : match;
         });
     }
 
@@ -92,7 +87,7 @@ const Viewer: React.FC = () => {
         const topicName = option.topic.name;
         if (option.selected) {
             const subCallback = (message: ROSLIB.Message) => {
-                updateLogArray(formatMessage(option.show, message as Message));
+                updateLogArray(formatMessage(option.show, message));
             }
             callbackRefs.current.set(topicName, subCallback);
             option.topic.subscribe(subCallback);

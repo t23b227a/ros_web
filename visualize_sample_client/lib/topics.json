@@ -5,9 +5,9 @@
         "show": "[${level}] ${name}: ${msg}"
     },
     {
-        "name": "target_point",
-        "messageType": "geometry_msgs/Pose2D",
-        "show": "x: ${x}, y: ${y}"
+        "name": "/goal_pose",
+        "messageType": "geometry_msgs/PoseStamped",
+        "show": "x: ${pose.position.x}, y: ${pose.position.y}"
     },
     {
         "name": "test_talker",
