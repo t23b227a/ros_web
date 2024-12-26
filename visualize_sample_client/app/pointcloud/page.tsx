@@ -47,18 +47,21 @@ const PointCloud: React.FC = () => {
         if (pointCloud === null) { return; }
         pointCloud.subscribe((msg: ROSLIB.Message) => {
             const scanMsg: LaserScan = msg as LaserScan;
-            console.log('ROS operator received LaserScan msg');
+            // console.log('ROS operator received LaserScan msg');
             const angleMin = scanMsg.angle_min;
             const angleMax = scanMsg.angle_max;
             const angleIncrement = scanMsg.angle_increment;
             const ranges = scanMsg.ranges;
             // 各点を2D座標 (x, y) に変換
-            const points = ranges.map((range, index) => {
-                const angle = angleMin + index * angleIncrement;
-                const x = range * Math.cos(angle);
-                const y = range * Math.sin(angle);
-                return { x, y }; // 各点の (x, y) 座標を配列に格納
-            });
+            const points = ranges
+                .map((range, index) => {
+                    if (!isFinite(range)) return null; // 不正な値を無視
+                    const angle = angleMin + index * angleIncrement;
+                    const x = range * Math.cos(angle);
+                    const y = range * Math.sin(angle);
+                    return { x, y }; // 各点の (x, y) 座標を配列に格納
+                }
+                ).filter((point): point is { x: number; y: number } => point !== null); // nullを除外;
             updateLaserScan(points);
         });
     }, [pointCloud]);

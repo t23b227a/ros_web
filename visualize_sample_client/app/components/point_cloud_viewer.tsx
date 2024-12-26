@@ -87,7 +87,7 @@ const PointCloudViewer = forwardRef((props, ref) => {
     // 表示
     return (
         <>
-            <Canvas style={{width: "99%", height: "45vh"}}>
+            <Canvas style={{width: "99%", height: "90vh"}}>
                 {/* 背景色 */}
                 <color attach="background" args={[BACKGROUND_COLOR]} />
 
