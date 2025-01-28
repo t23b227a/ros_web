@@ -14,8 +14,8 @@ const FIELD_WIDTH = 15100; // 横幅
 const FIELD_HEIGHT = 8100; // 縦幅
 
 // 画像の幅と高さ (ピクセル)
-const IMAGE_WIDTH = 800; // 表示画像の幅（px）
-const IMAGE_HEIGHT = 430; // 表示画像の高さ（px）
+const IMAGE_WIDTH = 708; // 表示画像の幅（px）
+const IMAGE_HEIGHT = 380; // 表示画像の高さ（px）
 
 const TOPIC_NAME = '/goal_pose';
 
@@ -82,9 +82,8 @@ const ImageManipulation: React.FC = () => {
     },[targetPosition])
 
     return (
-        <Container>
+        <div>
             {/* フィールド画像 */}
-            <Row>
                 <div
                     onClick={handleClick}
                     style={{
@@ -98,15 +97,15 @@ const ImageManipulation: React.FC = () => {
                     margin: '0 auto',
                     }}
                 >
-                    {/* マーカー */}
-                    {clickPosition && (
+                {/* マーカー */}
+                {clickPosition && (
                     <div
                         style={{
                         position: "absolute",
                         top: `${clickPosition.y - 5}px`, // マーカー中心を合わせる
                         left: `${clickPosition.x - 5}px`,
-                        width: "10px",
-                        height: "10px",
+                        width: "8px",
+                        height: "8px",
                         backgroundColor: "red",
                         borderRadius: "50%", // 円形
                         pointerEvents: "none", // クリックを無効化
@@ -114,20 +113,15 @@ const ImageManipulation: React.FC = () => {
                     ></div>
                 )}
             </div>
-        </Row>
 
-        {/* 座標出力 */}
-        {targetPosition && clickPosition && (
-            <Row>
-                <Col sm={{ span: 2, offset: 4 }}>
-                    <p>X座標: {targetPosition.x.toFixed(5)} m</p>
-                </Col>
-                <Col sm={2}>
-                    <p>Y座標: {targetPosition.y.toFixed(5)} m</p>
-                </Col>
-            </Row>
-        )}
-        </Container>
+            {/* 座標出力 */}
+            <div style={{ display: 'flex' }} >
+                <p style={{ margin: '0 auto' }}>
+                    X座標: {targetPosition?.x.toFixed(5)} m <br />
+                    Y座標: {targetPosition?.y.toFixed(5)} m
+                </p>
+            </div>
+        </div>
     );
 };
 

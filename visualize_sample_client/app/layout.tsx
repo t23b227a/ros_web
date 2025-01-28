@@ -9,7 +9,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <title>Ros GUI Controller</title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-        <meta name="description" content="GUI Controller for ROS"></meta>
+        <meta name="description" content="GUI Controller for ROS2"></meta>
       </head>
       <body>
         <ROSProvider>

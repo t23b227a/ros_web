@@ -6,6 +6,9 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
 
+// ImageManipulation
+import ImageManipulation from '@/app/imageManipulate/page';
+
 const MAX_SPEED = 1.0;
 const TOPIC_NAME = 'R1/cmd_vel';
 
@@ -154,7 +157,6 @@ const JoystickController: React.FC = () => {
     const { ros, rosConnected } = useROS();
     const [leftStick, setLeftStick] = useState<StickState>({ x: 0, y: 0 });
     const [rightStick, setRightStick] = useState<StickState>({ x: 0, y: 0 });
-    const [buttons, setButtons] = useState<number[]>([0, 0]);
     const [talker, setTalker] = useState<ROSLIB.Topic | null>(null);
 
     useEffect(() => {
@@ -185,22 +187,26 @@ const JoystickController: React.FC = () => {
         });
         talker?.publish(message);
         // console.log('Controller message published: ', message);
-    }, [leftStick, rightStick, buttons]);
+    }, [leftStick, rightStick]);
     //新たなボタン用のコンポーネントを作成し、その引数として直接setButtonsを渡す
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'center', height: '90vh' }}>
+        // スティックの位置を微調整する場合は、justifyContent: 'space-between'を削除してgap: '20px'によって変更する。
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '90vh' }}>
             <div>
-                <h3>左スティック</h3>
+                <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
+                    x: {(leftStick.x * MAX_SPEED).toFixed(5)} <br />
+                    y: {(leftStick.y * MAX_SPEED).toFixed(5)}
+                </p>
                 <Stick onChange={setLeftStick} id="left" />
-                <p>x: {(leftStick.x * MAX_SPEED).toFixed(5)}</p>
-                <p>y: {(leftStick.y * MAX_SPEED).toFixed(5)}</p>
             </div>
+            <ImageManipulation />
             <div>
-                <h3>右スティック</h3>
+                <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
+                    x: {rightStick.x.toFixed(5)} <br />
+                    y: {rightStick.y.toFixed(5)} <br />
+                </p>
                 <Stick onChange={setRightStick} id="right" />
-                <p>x: {rightStick.x.toFixed(5)}</p>
-                <p>y: {rightStick.y.toFixed(5)}</p>
             </div>
         </div>
     );
