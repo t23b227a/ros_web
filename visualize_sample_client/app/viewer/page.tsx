@@ -42,6 +42,24 @@ const Viewer: React.FC = () => {
         setTopicList(topicArray);
     }, [ros, rosConnected])
 
+    // const [twist, setTwist] = useState<ROSLIB.Topic | null>(null);
+    // useEffect(() => {
+    //     if (ros == null || !rosConnected) return;
+    //     setTwist(
+    //         new ROSLIB.Topic({
+    //             ros: ros,
+    //             name: 'R1/cmd_vel',
+    //             messageType: 'geometry_msgs/TwistStampted',
+    //         })
+    //     );
+    // }, [ros, rosConnected])
+    // useEffect(() => {
+    //     if(twist === null) { return; }
+    //     twist.subscribe((msg: ROSLIB.Message) => {
+    //         console.log(msg.twist.linear.x)
+    //     });
+    // }, [twist])
+
     const formatMessage = (template: string, messageData: any): string => {
         return template.replace(/\$\{([\w.]+)\}/g, (match, key) => {
             const value = key.split('.').reduce((obj: any, prop: any) => {
