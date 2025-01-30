@@ -13,5 +13,10 @@
         "name": "test_talker",
         "messageType": "std_msgs/String",
         "show": "${data}"
+    },
+    {
+        "name": "R1/cmd_vel",
+        "messageType": "geometry_msgs/TwistStampted",
+        "show": "x: ${twist.linear.x}, y: ${twist.linear.y}, z: ${twist.linear.z}"
     }
 ]
