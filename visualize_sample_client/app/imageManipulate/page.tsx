@@ -1,10 +1,6 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 
-// Bootstrap
-import { Container, Row, Col } from 'react-bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
-
 // ROS
 import * as ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
@@ -88,12 +84,12 @@ const ImageManipulation: React.FC = () => {
                     onClick={handleClick}
                     style={{
                     position: 'relative',
-                    width: `${IMAGE_WIDTH}px`,
-                    height: `${IMAGE_HEIGHT}px`,
+                    width: `58vw`,
+                    height: `31.11vw`,
                     backgroundImage: 'url(/ABU2025_field.png)',
                     backgroundSize: 'cover',
                     cursor: 'crosshair',
-                    border: '1px solid black',
+                    // border: '1px solid black',
                     margin: '0 auto',
                     }}
                 >

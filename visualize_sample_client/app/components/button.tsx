@@ -7,7 +7,6 @@ import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
 
 import '@/app/styles/button.css';
-import { div } from 'three/webgpu';
 
 const MyButton: React.FC<{ children: React.ReactNode, topicName: string }> = ({ children, topicName }) => {
     const { ros, rosConnected } = useROS();

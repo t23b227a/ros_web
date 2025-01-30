@@ -129,10 +129,8 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
             onTouchStart={handleStart}
             style={{
                 position: 'relative',
-                width: '30vw', // Relative size
-                height: '30vw', // Keep aspect ratio
-                maxWidth: '200px', // Optional max size
-                maxHeight: '200px',
+                width: '17vw', // Relative size
+                height: '17vw', // Keep aspect ratio
                 backgroundColor: '#ccc',
                 borderRadius: '50%',
             }}
@@ -141,10 +139,8 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
                 ref={stickRef}
                 style={{
                     position: 'absolute',
-                    width: '10vw', // Relative size
-                    height: '10vw',
-                    maxWidth: '50px', // Optional max size
-                    maxHeight: '50px',
+                    width: '45px', // Optional max size
+                    height: '45px',
                     backgroundColor: '#333',
                     borderRadius: '50%',
                     top: '50%',
@@ -193,8 +189,7 @@ const Controller: React.FC = () => {
     }, [leftStick, rightStick]);
 
     return (
-        // スティックの位置を微調整する場合は、justifyContent: 'space-between'を削除してgap: '20px'によって変更する。
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', height: '90vh' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', height: '90vh' }}>
             <div>
                 <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
                     x: {(leftStick.x * MAX_SPEED).toFixed(5)} <br />
@@ -203,8 +198,8 @@ const Controller: React.FC = () => {
                 <Stick onChange={setLeftStick} id="left" />
             </div>
             <ImageManipulation />
-            <div>
-                <div style={{ marginBottom: '20px' }}>
+            <div style={{ height: '85%' }}>
+                <div style={{ marginBottom: '45px' }}>
                     <MyButton topicName="shoot">
                         シュート
                     </MyButton>
@@ -212,11 +207,13 @@ const Controller: React.FC = () => {
                         パス
                     </MyButton>
                 </div>
-                <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
-                    x: {rightStick.x.toFixed(5)} <br />
-                    y: {rightStick.y.toFixed(5)} <br />
-                </p>
-                <Stick onChange={setRightStick} id="right" />
+                <div>
+                    <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
+                        x: {rightStick.x.toFixed(5)} <br />
+                        y: {rightStick.y.toFixed(5)} <br />
+                    </p>
+                    <Stick onChange={setRightStick} id="right" />
+                </div>
             </div>
         </div>
     );

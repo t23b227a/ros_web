@@ -3,6 +3,8 @@
 import { ROSProvider } from './ROSContext';
 import AppNavbar from './components/menubar';
 
+import '@/app/styles/globals.css';
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ja">
@@ -14,7 +16,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ROSProvider>
           <AppNavbar />
-          {children}
+            {children}
         </ROSProvider>
       </body>
     </html>
