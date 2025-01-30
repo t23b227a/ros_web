@@ -1,0 +1,22 @@
+/* ボタンの基本スタイル */
+.button {
+    appearance: none;
+    border: none;
+    border-radius: 8px;
+    background-color: #007bff; /* 通常時のボタンの色 */
+    color: white;
+    font-size: 16px;
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: all 0.2s ease; /* 見た目の変化にスムーズな遷移 */
+    display: block;
+    width: 85%;
+    margin: 10px auto
+}
+
+/* ボタンが押されているとき */
+.button.pressed {
+    background-color: #0056b3; /* 押下中のボタン色 */
+    transform: scale(0.95); /* ボタンを少し小さくして押された感じを演出 */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 押されたときの影を追加 */
+}

@@ -9,6 +9,9 @@ import { useROS } from '@/app/ROSContext';
 // ImageManipulation
 import ImageManipulation from '@/app/imageManipulate/page';
 
+// MyButton
+import MyButton from '@/app/components/button';
+
 const MAX_SPEED = 1.0;
 const TOPIC_NAME = 'R1/cmd_vel';
 
@@ -153,7 +156,7 @@ const Stick: React.FC<StickProps> = ({ onChange, id }) => {
     );
 };
 
-const JoystickController: React.FC = () => {
+const Controller: React.FC = () => {
     const { ros, rosConnected } = useROS();
     const [leftStick, setLeftStick] = useState<StickState>({ x: 0, y: 0 });
     const [rightStick, setRightStick] = useState<StickState>({ x: 0, y: 0 });
@@ -188,7 +191,6 @@ const JoystickController: React.FC = () => {
         talker?.publish(message);
         // console.log('Controller message published: ', message);
     }, [leftStick, rightStick]);
-    //新たなボタン用のコンポーネントを作成し、その引数として直接setButtonsを渡す
 
     return (
         // スティックの位置を微調整する場合は、justifyContent: 'space-between'を削除してgap: '20px'によって変更する。
@@ -202,6 +204,14 @@ const JoystickController: React.FC = () => {
             </div>
             <ImageManipulation />
             <div>
+                <div style={{ marginBottom: '20px' }}>
+                    <MyButton topicName="shoot">
+                        シュート
+                    </MyButton>
+                    <MyButton topicName="pass">
+                        パス
+                    </MyButton>
+                </div>
                 <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
                     x: {rightStick.x.toFixed(5)} <br />
                     y: {rightStick.y.toFixed(5)} <br />
@@ -212,4 +222,4 @@ const JoystickController: React.FC = () => {
     );
 };
 
-export default JoystickController;
+export default Controller;
