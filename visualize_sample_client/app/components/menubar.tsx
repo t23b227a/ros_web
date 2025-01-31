@@ -22,11 +22,10 @@ export default function AppNavbar() {
             </Button>
             <h3>ROS接続状態...{rosConnected ? 'ON' : 'OFF'}</h3>
             <Link href="/viewer" className="nav-link">Viewer</Link>
-            <Link href="/talker" className="nav-link">Talker</Link>
             <Link href="/controller" className="nav-link">Controller</Link>
-            <Link href="/imageManipulate" className="nav-link">ImageManipulation</Link>
             <Link href="/pointcloud" className="nav-link">PointCloud</Link>
             <Link href="/camera" className="nav-link">Camera</Link>
+            <Link href="/talker" className="nav-link">Talker</Link>
             <Link href="/test" className="nav-link">Test</Link>
             </Stack>
         </Navbar.Collapse>

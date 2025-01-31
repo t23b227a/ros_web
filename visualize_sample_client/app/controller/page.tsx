@@ -1,18 +1,19 @@
 "use client";
 // React
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, } from 'react';
 
 // ROS
 import ROSLIB from 'roslib';
 import { useROS } from '@/app/ROSContext';
 
-// ImageManipulation
-import ImageManipulation from '@/app/imageManipulate/page';
-
-// MyButton
+// MyComponents
+import Stick from '@/app/components/stick';
+import ImageManipulation from '@/app/components/image_manipulate';
 import MyButton from '@/app/components/button';
+import Toggle from '@/app/components/toggle';
 
 const MAX_SPEED = 1.0;
+const MAX_ANGULARSPEED = 1.5;
 const TOPIC_NAME = 'R1/cmd_vel';
 
 interface StickState {
@@ -20,151 +21,29 @@ interface StickState {
     y: number;   // [0 ~ 1]
 }
 
-interface StickProps {
-    onChange: (state: StickState) => void;
-    id: string;
-}
-
-const Stick: React.FC<StickProps> = ({ onChange, id }) => {
-    const [position, setPosition] = useState({ x: 0, y: 0 });
-    const [isActive, setIsActive] = useState(false);
-    const baseRef = useRef<HTMLDivElement>(null);
-    const stickRef = useRef<HTMLDivElement>(null);
-    const touchIdRef = useRef<number | null>(null);
-
-    const touchMove = useCallback((e: TouchEvent) => {
-        e.preventDefault();
-        if (!baseRef.current || !stickRef.current) return;
-        let clientX, clientY;
-        const touch = Array.from(e.changedTouches).find(t => t.identifier === touchIdRef.current);
-        if (!touch) return;
-        clientX = touch.clientX;
-        clientY = touch.clientY;
-        const baseRect = baseRef.current.getBoundingClientRect();
-        const maxDistance = baseRect.width / 2 - stickRef.current.offsetWidth / 2;
-        let x = clientX - baseRect.left - baseRect.width / 2;
-        let y = clientY - baseRect.top - baseRect.height / 2;
-        const distance = Math.sqrt(x*x + y*y);
-        if (distance > maxDistance) {
-            x *= maxDistance / distance;
-            y *= maxDistance / distance;
-        }
-        setPosition({ x, y });
-        onChange({ x: x/maxDistance, y: -y/maxDistance });
-    }, [onChange]);
-
-    const mouseMove = useCallback((e: MouseEvent) => {
-        if (!baseRef.current || !stickRef.current) return;
-        let clientX, clientY;
-        clientX = e.clientX;
-        clientY = e.clientY;
-        const baseRect = baseRef.current.getBoundingClientRect();
-        const maxDistance = baseRect.width / 2 - stickRef.current.offsetWidth / 2;
-        let x = clientX - baseRect.left - baseRect.width / 2;
-        let y = clientY - baseRect.top - baseRect.height / 2;
-        const distance = Math.sqrt(x*x + y*y);
-        if (distance > maxDistance) {
-            x *= maxDistance / distance;
-            y *= maxDistance / distance;
-        }
-        setPosition({ x, y });
-        onChange({ x: x/maxDistance, y: -y/maxDistance });
-    }, [onChange]);
-
-    const touchEnd = useCallback((e: TouchEvent) => {
-        if(touchIdRef.current === e.changedTouches[0].identifier) {
-            setIsActive(false);
-            setPosition({ x: 0, y: 0 });
-            onChange({ x: 0, y: 0 });
-            touchIdRef.current = null;
-        }
-    }, [onChange]);
-
-    const mouseEnd = useCallback((e: MouseEvent) => {
-        setIsActive(false);
-        setPosition({ x: 0, y: 0 });
-        onChange({ x: 0, y: 0 });
-        touchIdRef.current = null;
-    }, [onChange]);
-
-    const handleStart = useCallback((e: React.MouseEvent | React.TouchEvent) => {
-        if (isActive) return;
-        const target = e.target as Node;
-        if (baseRef.current && baseRef.current.contains(target)) {
-            setIsActive(true);
-            if (e.type === 'touchstart') {
-                const e_touches = (e as React.TouchEvent).changedTouches;
-                const touch = e_touches[e_touches.length - 1];
-                touchIdRef.current = touch.identifier;
-            }
-        }
-    }, [touchMove]);
-
-    useEffect(() => {
-        if (isActive) {
-            document.addEventListener('mousemove', mouseMove);
-            document.addEventListener('mouseup', mouseEnd);
-        } else {
-            document.removeEventListener('mousemove', mouseMove);
-            document.removeEventListener('mouseup', mouseEnd);
-        }
-    }, [isActive, mouseMove,mouseEnd]);
-
-    useEffect(() => {
-        if (isActive) {
-            document.addEventListener('touchmove', touchMove, { passive: false });
-            document.addEventListener('touchend', touchEnd);
-            document.addEventListener('touchcancel', touchEnd);
-        } else {
-            document.removeEventListener('touchmove', touchMove);
-            document.removeEventListener('touchend', touchEnd);
-            document.removeEventListener('touchcancel', touchEnd);
-        }
-    }, [isActive, touchMove, touchEnd]);
-
-    return (
-        <div
-            ref={baseRef}
-            onMouseDown={handleStart}
-            onTouchStart={handleStart}
-            style={{
-                position: 'relative',
-                width: '17vw', // Relative size
-                height: '17vw', // Keep aspect ratio
-                backgroundColor: '#ccc',
-                borderRadius: '50%',
-            }}
-        >
-            <div
-                ref={stickRef}
-                style={{
-                    position: 'absolute',
-                    width: '45px', // Optional max size
-                    height: '45px',
-                    backgroundColor: '#333',
-                    borderRadius: '50%',
-                    top: '50%',
-                    left: '50%',
-                    transform: `translate(calc(-50% + ${position.x}px), calc(-50% + ${position.y}px))`,
-                }}
-            />
-        </div>
-    );
-};
-
 const Controller: React.FC = () => {
     const { ros, rosConnected } = useROS();
     const [leftStick, setLeftStick] = useState<StickState>({ x: 0, y: 0 });
     const [rightStick, setRightStick] = useState<StickState>({ x: 0, y: 0 });
-    const [talker, setTalker] = useState<ROSLIB.Topic | null>(null);
+    const [speedpub, setSpeedpub] = useState<ROSLIB.Topic | null>(null);
+    const [lowspeed, setLowspeed] = useState(false);
+    const [worldScale, setWorldscale] = useState(false);
+    const [scalepub, setScalepub] = useState<ROSLIB.Topic | null>(null);
 
     useEffect(() => {
         if (ros == null || !rosConnected) return;
-        setTalker(
+        setSpeedpub(
             new ROSLIB.Topic({
                 ros: ros,
                 name: TOPIC_NAME,
                 messageType: 'geometry_msgs/TwistStamped',
+            })
+        );
+        setScalepub(
+            new ROSLIB.Topic({
+                ros: ros,
+                name: 'world_scale',
+                messageType: 'std_msgs/Bool',
             })
         );
     }, [rosConnected, ros]);
@@ -180,34 +59,47 @@ const Controller: React.FC = () => {
                 frame_id: '',
             },
             twist: {
-                linear: { x: leftStick.x * MAX_SPEED, y: leftStick.y * MAX_SPEED, z: 0.0 },
-                angular: { x: 0.0, y: 0.0, z: rightStick.x },
+                linear: { x: leftStick.x * MAX_SPEED * (lowspeed ? 0.5 : 1.0), y: leftStick.y * MAX_SPEED * (lowspeed ? 0.5 : 1.0), z: 0.0 },
+                angular: { x: 0.0, y: 0.0, z: rightStick.x * MAX_ANGULARSPEED },
             },
         });
-        talker?.publish(message);
+        speedpub?.publish(message);
         // console.log('Controller message published: ', message);
     }, [leftStick, rightStick]);
 
+    useEffect(() => {
+        if (!rosConnected) return;
+        const message = new ROSLIB.Message({
+            data: worldScale
+        });
+        scalepub?.publish(message);
+        // console.log('Scale message published: ', message);
+    }, [worldScale]);
+
     return (
         <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', height: '90vh' }}>
-            <div>
-                <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
-                    x: {(leftStick.x * MAX_SPEED).toFixed(5)} <br />
-                    y: {(leftStick.y * MAX_SPEED).toFixed(5)}
-                </p>
-                <Stick onChange={setLeftStick} id="left" />
+            <div style={{ height: '85%', position: 'relative', width: '17vw', }}>
+                <Toggle name='ワールド座標' setState={setWorldscale} />
+                <Toggle name='低速' setState={setLowspeed} />
+                <div style={{ position: 'absolute', bottom: '20%' }}>
+                    <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
+                        x: {(leftStick.x * MAX_SPEED).toFixed(5)} <br />
+                        y: {(leftStick.y * MAX_SPEED).toFixed(5)}
+                    </p>
+                    <Stick onChange={setLeftStick} id="left" />
+                </div>
             </div>
             <ImageManipulation />
-            <div style={{ height: '85%' }}>
+            <div style={{ height: '85%', position: 'relative', width: '17vw', }}>
                 <div style={{ marginBottom: '45px' }}>
                     <MyButton topicName="shoot">
                         シュート
                     </MyButton>
                     <MyButton topicName="pass">
-                        パス
+                        ドリブル
                     </MyButton>
                 </div>
-                <div>
+                <div style={{ position: 'absolute', bottom: '20%' }}>
                     <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
                         x: {rightStick.x.toFixed(5)} <br />
                         y: {rightStick.y.toFixed(5)} <br />
