@@ -28,7 +28,7 @@ const MyButton: React.FC<{ children: React.ReactNode, state: string }> = ({ chil
             data: Number(state)
         });
         button?.publish(message);
-        console.log('Button is pressed: ', message);
+        // console.log('Button is pressed: ', message);
     }, [isPressed]);
 
     return (
