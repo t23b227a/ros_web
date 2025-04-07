@@ -1,7 +1,8 @@
 'use client';
 
-import { Navbar, Stack, Button } from 'react-bootstrap';
+import { Navbar, Stack } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import '@/app/styles/button.css';
 import Link from 'next/link';
 import { useROS } from '../ROSContext';
 
@@ -13,13 +14,15 @@ export default function AppNavbar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
             <Stack direction="horizontal" gap={3} className="me-auto">
-            <Button
-                variant={!rosConnected ? "primary" : "outline-secondary"}
+            <button
+                className={`rosbutton ${rosConnected ? 'connected' : ''}`}
                 disabled={rosConnected}
                 onClick={!rosConnected ? connectToROS : undefined}
             >
                 ROS接続開始
-            </Button>
+            </button>
+
+
             <h3>ROS接続状態...{rosConnected ? 'ON' : 'OFF'}</h3>
             <Link href="/viewer" className="nav-link">Viewer</Link>
             <Link href="/controller" className="nav-link">Controller</Link>

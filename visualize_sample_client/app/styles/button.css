@@ -20,3 +20,22 @@
     transform: scale(0.95); /* ボタンを少し小さくして押された感じを演出 */
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* 押されたときの影を追加 */
 }
+
+.rosbutton {
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 14px;
+    background-color: #0d6efd; /* Bootstrapの primary 相当 */
+    color: white;
+    border: none;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.rosbutton.connected {
+    background-color: white;
+    color: #6c757d; /* Bootstrapの outline-secondary 相当 */
+    border: 1px solid #6c757d;
+    cursor: not-allowed;
+}
