@@ -12,8 +12,6 @@ import ImageManipulation from '@/app/components/image_manipulate';
 import MyButton from '@/app/components/button';
 import Toggle from '@/app/components/toggle';
 
-const MAX_SPEED = 1.0;
-const MAX_ANGULARSPEED = 1.5;
 const TOPIC_NAME = 'R1/cmd_vel';
 
 interface StickState {
@@ -59,8 +57,8 @@ const Controller: React.FC = () => {
                 frame_id: '',
             },
             twist: {
-                linear: { x: leftStick.x * MAX_SPEED * (lowspeed ? 0.5 : 1.0), y: leftStick.y * MAX_SPEED * (lowspeed ? 0.5 : 1.0), z: 0.0 },
-                angular: { x: 0.0, y: 0.0, z: rightStick.x * MAX_ANGULARSPEED },
+                linear: { x: leftStick.x * (lowspeed ? 0.5 : 1.0), y: leftStick.y * (lowspeed ? 0.5 : 1.0), z: 0.0 },
+                angular: { x: 0.0, y: 0.0, z: rightStick.x },
             },
         });
         speedpub?.publish(message);
@@ -83,8 +81,8 @@ const Controller: React.FC = () => {
                 <Toggle name='低速' setState={setLowspeed} />
                 <div style={{ position: 'absolute', bottom: '20%' }}>
                     <p style={{ display:'flex', justifyContent: 'center',margin: '0 auto' }}>
-                        x: {(leftStick.x * MAX_SPEED).toFixed(5)} <br />
-                        y: {(leftStick.y * MAX_SPEED).toFixed(5)}
+                        x: {(leftStick.x).toFixed(5)} <br />
+                        y: {(leftStick.y).toFixed(5)}
                     </p>
                     <Stick onChange={setLeftStick} id="left" />
                 </div>
