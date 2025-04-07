@@ -8,7 +8,7 @@ import { useROS } from '@/app/ROSContext';
 
 import '@/app/styles/button.css';
 
-const MyButton: React.FC<{ children: React.ReactNode, topicName: string }> = ({ children, topicName }) => {
+const MyButton: React.FC<{ children: React.ReactNode, state: string }> = ({ children, state }) => {
     const { ros, rosConnected } = useROS();
     const [button, setButton] = useState<ROSLIB.Topic | null>(null);
     const [isPressed, setIsPressed] = useState(false);
@@ -17,18 +17,18 @@ const MyButton: React.FC<{ children: React.ReactNode, topicName: string }> = ({ 
         setButton(
             new ROSLIB.Topic({
                 ros: ros,
-                name: topicName,
-                messageType: 'std_msgs/Bool',
+                name: 'cmd_state',
+                messageType: 'std_msgs/Int32',
             })
         );
     }, [rosConnected, ros]);
     useEffect(() => {
-        if (!rosConnected) return;
+        if (!rosConnected || !isPressed) return;
         const message = new ROSLIB.Message({
-            data: isPressed
+            data: Number(state)
         });
         button?.publish(message);
-        // console.log('Button is pressed: ', message);
+        console.log('Button is pressed: ', message);
     }, [isPressed]);
 
     return (

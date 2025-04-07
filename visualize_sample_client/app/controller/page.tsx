@@ -92,11 +92,11 @@ const Controller: React.FC = () => {
             <ImageManipulation />
             <div style={{ height: '85%', position: 'relative', width: '17vw', }}>
                 <div style={{ marginBottom: '45px' }}>
-                    <MyButton topicName="shoot">
+                    <MyButton state="5">
                         シュート
                     </MyButton>
-                    <MyButton topicName="pass">
-                        ドリブル
+                    <MyButton state="6">
+                        パス
                     </MyButton>
                 </div>
                 <div style={{ position: 'absolute', bottom: '20%' }}>
